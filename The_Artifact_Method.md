@@ -22,8 +22,8 @@
 > pre-audit code; auto-accept only what a gate covers; context lives in files, not
 > prompts; the human owns every decision with no deterministic answer.
 >
-> **Evidence:** one real app (MangaCat) shipped across three tagged releases —
-> signed artifacts, CI, 41 tests, device acceptance with 31 screenshots — for
+> **Evidence:** one real app (MangaCat) shipped across three tagged releases , 
+> signed artifacts, CI, 41 tests, device acceptance with 31 screenshots, for
 > ¥7.76 (~$1.15) metered API cost and roughly five human hours.
 >
 > **Limits, honestly:** one case study, a spec-completable domain; no security
@@ -40,13 +40,13 @@ The Artifact Method is a complete software development lifecycle in which a huma
 who does not write most of the code ships production-grade software by owning four
 things exclusively:
 
-1. **Intent** — what should exist and why (elicited, not assumed)
-2. **Contract** — a normative specification that is the single source of truth
-3. **Sequencing** — what happens next, in what order, with what topology
-4. **Gates** — the checkpoints at which work is verified before it advances
+1. **Intent**: what should exist and why (elicited, not assumed)
+2. **Contract**: a normative specification that is the single source of truth
+3. **Sequencing**: what happens next, in what order, with what topology
+4. **Gates**: the checkpoints at which work is verified before it advances
 
-Everything else — implementation, review passes, deployment mechanics, tooling
-evaluation, device testing, polish — is delegated to AI agents. The method's core
+Everything else, implementation, review passes, deployment mechanics, tooling
+evaluation, device testing, polish, is delegated to AI agents. The method's core
 claim, empirically exercised on 2026-10-14/15 across two full release cycles of
 the MangaCat build:
 
@@ -56,13 +56,13 @@ the MangaCat build:
 
 **MangaCat ledger (the evidentiary basis of this document):**
 
-Phase 1 — v0.0.1:
+Phase 1, v0.0.1:
 ~1 hour of specification conversation → one evening of build time → 16 commits
 total across the project (13 in the initial arc) → a signed, CI-backed,
 MIT-licensed, publicly released Android application → API spend ¥4.04 (~$0.60)
 for this phase, metered.
 
-Phase 2 — v0.0.2 (testing, tooling, and the fix loop):
+Phase 2, v0.0.2 (testing, tooling, and the fix loop):
 device-test tooling evaluated and bound (mobile-mcp), full black-box device
 acceptance executed, one user-reported defect diagnosed and fixed, second signed
 release published with evidence artifacts → Phase 2 API spend ¥3.72, derived
@@ -85,8 +85,8 @@ URL recorded in §14 (Fact Ledger).
    polish surfaces that may still change.
 4. **Swarms for breadth, solo for depth.** Parallel agents for independent,
    read-mostly analysis; a single context for sequential, stateful, irreversible work.
-5. **Verify at gates, not per-finding.** Auto-accept agent output when — and only
-   when — a cheap, strong verification gate stands behind it. Confidence to
+5. **Verify at gates, not per-finding.** Auto-accept agent output when, and only
+   when, a cheap, strong verification gate stands behind it. Confidence to
    auto-accept is purchased upstream by gate quality.
 6. **The human decides what to do next; agents decide how.** Every decision that
    lacks a deterministic answer is human-owned. Every task that has one is delegated.
@@ -143,7 +143,7 @@ Stages 4, 5, and 7 are **swarm/harness rounds**; stages 6, 6b, 8, and 9 are
 
 ## 5. Stage Specifications
 
-### Stage 0 — Elicitation
+### Stage 0, Elicitation
 - Interview in **rounds of forced-choice questions** (the MangaCat elicitation
   used 75 questions across 4 rounds of 30/30/10/5, per the practitioner's log).
 - Every question offers an **expert-default escape hatch** ("whatever is best").
@@ -153,16 +153,16 @@ Stages 4, 5, and 7 are **swarm/harness rounds**; stages 6, 6b, 8, and 9 are
 - Group questions by concern: usage, data model, file behavior, UI, platform,
   privacy, future-proofing.
 - The interviewer's job is to surface contradictions in the Oracle's answers
-  (e.g., "keep it simple" vs. "series tracker with all the shebang" — resolved
+  (e.g., "keep it simple" vs. "series tracker with all the shebang", resolved
   via a simple/advanced mode toggle).
 - **Output:** a numbered decision log. Every later stage traces authority to it.
 
-### Stage 1 — The Contract (Normative Specification)
+### Stage 1, The Contract (Normative Specification)
 The spec must contain, at minimum:
 - Goals and **explicit non-goals** (scope discipline is a feature list of refusals)
 - Data model with field-level detail (types, limits, defaults)
 - Normative format rules written in *must* language (e.g., "UTF-8, comma-delimited,
-  RFC 4180 quoting, CRLF" — MangaCat Specification §5.2)
+  RFC 4180 quoting, CRLF" (MangaCat Specification §5.2))
 - An **error-handling matrix**: scenario → detection → behavior
 - Architecture sketch and storage model
 - A **locked decisions log** (the "whatever is best" resolutions, attributed)
@@ -176,7 +176,7 @@ in this case: the application package was changed from the draft (`ph.jjjardev.*
 to `ph.smolfiddle.mangacat`) at the Author's instruction mid-build, and the spec
 file was updated to match in the same commit that scrubbed the old string.
 
-### Stage 2 — One-Shot Build (The Entry Ritual)
+### Stage 2, One-Shot Build (The Entry Ritual)
 The ritual is deliberately minimal. Verbatim brief from the case study (one fragment elided for privacy):
 
 > *"create flutter app, use MangaCat_Specification.md for specification, use
@@ -184,11 +184,11 @@ The ritual is deliberately minimal. Verbatim brief from the case study (one frag
 > it to local, [...] dont make mistake, make it perfect"*
 
 Three lines. The artifact carries the semantics; the prompt is a pointer.
-**Do not push yet** — the first artifact is never the shipped artifact. The
+**Do not push yet**: the first artifact is never the shipped artifact. The
 Builder worked in milestones internally; the Author's only jobs during Stage 2
 were: spec reachable, permission rules set, waiting.
 
-### Stage 3 — Hiccup Triage
+### Stage 3, Hiccup Triage
 - The Author **uses the app by hand**. Hiccups are felt, not read.
 - Fix obvious defects in the main context. MangaCat defects triaged here:
   FAB missing entirely, snackbar queue collisions, fingerprint false-conflict
@@ -196,28 +196,28 @@ were: spec reachable, permission rules set, waiting.
   Author's request), undo reverting the wrong action.
 - Do not expand scope here. Fix, don't feature-add.
 
-### Stage 4 — Audit Swarm (Correctness)
+### Stage 4, Audit Swarm (Correctness)
 - **Topology:** 2 subagents, read-mostly, parallel.
 - **Brief, verbatim:** *"can you scan the codebase if you find any anomalies/bug/and
   need of adjustment? use sub agent for this"*
 - **Findings handling: auto-accept.** What the swarm found passed to the Builder
-  (commit `0f8e743`: 25 findings fixed — PIN cooldown freeze, silent data
+  (commit `0f8e743`: 25 findings fixed, PIN cooldown freeze, silent data
   discard on conflict, atomic audit writes, IO moved off the Android main thread,
   and more). This is rational *only because* the gate behind it is strong
-  (§2, principle 5). Do not copy auto-accept without copying the gate — and note
+  (§2, principle 5). Do not copy auto-accept without copying the gate, and note
   the escape evidence in §13.
 
-### Stage 5 — Design Swarm (Aesthetics)
+### Stage 5, Design Swarm (Aesthetics)
 - Same topology, different axis. **Brief, verbatim:** *"now another round of
   subagents, review the Design/UI/UX where where it will be better overall"*
 - Runs **only after** correctness is settled. Polish on moving code is wasted.
-- Result: commit `9c25e33` — theme tokens consolidated, undo handles introduced,
+- Result: commit `9c25e33`, theme tokens consolidated, undo handles introduced,
   gesture hint, explicit "Not in your list." verdict, accessibility semantics,
   icon and brand unification (paw mark).
 
-### Stage 6 — Solo Ship
+### Stage 6, Solo Ship
 Deployment and polish run in the **main context, no subagents.** Decision rule:
-*use the main context when the task is obvious and sequential* — deployment is
+*use the main context when the task is obvious and sequential*, deployment is
 stateful, irreversible, and credential-adjacent; polish requires a single
 authorial voice. The Builder initiates beyond the spec here; the Author curates.
 
@@ -237,17 +237,17 @@ What Stage 6 actually produced in this case (all in the main context):
   used in a step-level `if`; replaced with a shell guard (`1fbe3bd`), and
   idempotent release creation was added (`29ef580`).
 
-### Stage 6b — Tooling Bind (Device-Test Harness)
+### Stage 6b, Tooling Bind (Device-Test Harness)
 New stage, established by observed need: after releasing, there was no way for
 the agent to *see* the app. The Bind stage evaluates and wires the device bridge.
 
 Evaluation performed (both read-only, documented, no install of the rejected
 option):
-- **Maestro** — full YAML test framework with bundled MCP, Flutter support
+- **Maestro**: full YAML test framework with bundled MCP, Flutter support
   documented, but heavy: bash installer into `~/.maestro`, Java required, PATH
   edits to `.bashrc`/`.zshrc`, zip-integrity-only verification, and a Cloud
   upsell. A test *framework* when the immediate need was agent *hands*.
-- **mobile-mcp (Mobile Next)** — MCP server for live device control; `npx`
+- **mobile-mcp (Mobile Next)**: MCP server for live device control; `npx`
   install; 33 tools (device list, app install/launch, element listing, tap/type,
   logcat, crash reports, batch commands, screen recording); opencode
   configuration documented upstream; telemetry opt-out via a single env var.
@@ -257,7 +257,7 @@ priority). Verified after binding:
 - Handshake: server `mobile-mcp 1.0.11`, **33 tools** returned.
 - Device discovery: emulator `Medium_Phone_API_36.1`, Android 16, online.
 - Node 20.19.4 emits `EBADENGINE` warnings from a transitive package requiring
-  Node ≥22 — verified harmless (server runs; handshake clean).
+  Node ≥22, verified harmless (server runs; handshake clean).
 - Config facts: pinned version (`@1.0.11`), `timeout: 20000` (npx cold start
   exceeds the 5-second default), `MOBILEMCP_DISABLE_TELEMETRY=1`, and
   platform-tools/emulator added to PATH.
@@ -265,17 +265,17 @@ priority). Verified after binding:
 Honest limitation recorded at bind time: the running agent session could not use
 the newly bound MCP tools (they load at session start), so the first Stage 7 run
 was executed with a purpose-written **adb + uiautomator driver** instead
-(`uitap.py`: dump UI tree, match label, tap center; screenshot capture —
+(`uitap.py`: dump UI tree, match label, tap center; screenshot capture , 
 Android-only, framework-agnostic).
 Both paths are harness-equivalent for black-box flows; the MCP path remains to be
 exercised in a future session (§13).
 
-### Stage 7 — Device Test (Black-Box Acceptance) — EXECUTED
+### Stage 7, Device Test (Black-Box Acceptance), EXECUTED
 - Method: debug APK installed on an Android 16 emulator; every acceptance
   criterion walked black-box through system UI, not in-app test hooks.
 - Evidence: **31 numbered screenshots** (`01_launch.png` … `31_bottom_padding.png`),
   a `TEST_NOTES.md` table of every flow and result, and the two CSVs written by
-  the app during the run — saved, byte-verified, and bundled.
+  the app during the run, saved, byte-verified, and bundled.
 - Coverage: PIN setup and gate; cold-relaunch persistence; CSV creation via the
   system picker; search verdicts; add and quick-add; detail editing with
   autosave; swipe gestures; undo/restore id semantics; filters; save-to-CSV with
@@ -286,7 +286,7 @@ exercised in a future session (§13).
   last row, and a few harness-side artifacts were identified and excluded from
   the defect list (see §7, Harness hazards).
 
-### Stage 8 — Fix Loop
+### Stage 8, Fix Loop
 - The Author's report, verbatim: *"can you asses it the swipe feature 'read and
   delete' since it is way too sensitive and its also itrusive to actual apple
   like home interface like swipe at the side of the touch to go back, I think we
@@ -301,7 +301,7 @@ exercised in a future session (§13).
   delete; Cancel keeps the row; Delete + Undo restores the same id; firm toggle
   still works; scrolled-to-end layout verified clear of the FAB.
 
-### Stage 9 — Re-release
+### Stage 9, Re-release
 - Version bump `0.0.1+1` → `0.0.2+2` (commit `91a9f07`).
 - Tag `v0.0.2` → CI built signed artifacts and created the GitHub release.
 - The release was then completed by hand with the Author's explicit instruction:
@@ -374,8 +374,8 @@ exercised in a future session (§13).
 | Labeling/UX drift | Artist field mislabeled | Stage 3 | Hiccup triage + design swarm |
 | Gesture over-trigger | Swipe delete fired on 40% drag or a flick, no confirmation | **Stage 7** | Threshold raise + confirmation gate for destructive gestures |
 | Layout occlusion | FAB/snackbar covering the last row | **Stage 7** | Reserve list bottom padding where floating chrome lives |
-| Harness complacency | Agent reading own output calls it done | Prevented | Never skip Stage 3/7 — the Author must *feel* the app |
-| Context loss on long tasks | (avoided) | — | Milestone large builds; swarm topology for breadth |
+| Harness complacency | Agent reading own output calls it done | Prevented | Never skip Stage 3/7, the Author must *feel* the app |
+| Context loss on long tasks | (avoided) | - | Milestone large builds; swarm topology for breadth |
 | Environment OOM | Gradle template heap 8G on a 7.4 GiB machine; build killed | CI/build | Tune toolchain memory to host; commit the tuning |
 
 ### Harness hazards (not app defects; recorded so future runs skip them)
@@ -403,15 +403,15 @@ You do **not** need: syntax fluency, framework memorization, or the ability to
 write any of the code.
 
 You **do** need:
-- **Spec judgment** — knowing what you want well enough to answer forced-choice
+- **Spec judgment**: knowing what you want well enough to answer forced-choice
   questions, and recognizing when to delegate ("whatever is best")
-- **Context intuition** — the Context Law applied without hesitation
-- **Gate discipline** — actually running the sweeps, actually pushing only after
-- **Stage discipline** — resisting feature creep during fix rounds; stopping
+- **Context intuition**: the Context Law applied without hesitation
+- **Gate discipline**: actually running the sweeps, actually pushing only after
+- **Stage discipline**: resisting feature creep during fix rounds; stopping
   stages when their axis is settled
-- **Calibration honesty** — knowing which of your decisions are preference and
+- **Calibration honesty**: knowing which of your decisions are preference and
   which are expertise
-- **Test orchestration** — deciding what the device run must prove, reading
+- **Test orchestration**: deciding what the device run must prove, reading
   evidence (screenshots, byte-level files) instead of trusting "it works," and
   distinguishing app defects from harness artifacts
 
@@ -432,7 +432,7 @@ You **do** need:
 - **Trusting the harness over the artifact.** A failing tap can be a driver bug;
   verify against the screenshot before "fixing" the app.
 - **Human micromanagement inside stages.** If you're directing file-level work,
-  the contract wasn't clear enough — go fix the contract.
+  the contract wasn't clear enough, go fix the contract.
 - **Releasing without the identity ceremony.** The signing keystore is the one
   irreplaceable object in the project; back it up before the first tag.
 
@@ -517,12 +517,12 @@ You **do** need:
 | **Project total** | ~2 evenings | **¥7.76 (~$1.15)** | 464 requests · 118,112,557 tokens (overall meter) |
 
 Economics observed: ≈254k tokens per request across the project
-(118,112,557 / 464) — cached context re-reads dominate, which is the artifact
+(118,112,557 / 464), cached context re-reads dominate, which is the artifact
 economy working as claimed; output-token compression attacks the most expensive
 vector of verbose models; milestone staging suppresses retry spirals, the true
 cost driver in agentic coding. Metering honesty: Phase 1 was metered live
 (¥4.04); Phase 2 is derived from the overall meter minus Phase 1
-(¥7.76 − ¥4.04 = ¥3.72). Only project-level aggregates exist — no per-stage
+(¥7.76 − ¥4.04 = ¥3.72). Only project-level aggregates exist, no per-stage
 split, and no counterfactual (no-method baseline). These are API marginal costs;
 they exclude human time, hardware, and infrastructure.
 
@@ -530,7 +530,7 @@ they exclude human time, hardware, and infrastructure.
 
 ## 12. The Reusable Kit (copy to every new project)
 
-1. The spec **template** (§5 Stage 1 structure — goals/non-goals, data model,
+1. The spec **template** (§5 Stage 1 structure, goals/non-goals, data model,
    normative formats, error matrix, locked decisions, acceptance criteria)
 2. `AGENTS.md` baseline (analyzer loop, permissions, never-push, commit-at-stage)
 3. The verbatim briefs (§10), including the release-packaging and test briefs
@@ -541,7 +541,7 @@ they exclude human time, hardware, and infrastructure.
    idempotent release creation) + **keystore ceremony** (PKCS12, random password,
    gitignore, off-machine backup) + checksum-in-release + download-and-verify
 8. **Device bridge config** (mobile-mcp snippet above; telemetry off; pinned version)
-9. **Device driver script** (adb + uiautomator label-tap helper — Android-only
+9. **Device driver script** (adb + uiautomator label-tap helper, Android-only
    but framework-agnostic; the Stage 7 fallback that proved sufficient) and
    the **evidence-bundle shape** (§10)
 10. This document
@@ -550,16 +550,16 @@ they exclude human time, hardware, and infrastructure.
 (the `uitap.py` driver is the first prototype; promoting it to a checklist
 executor is the highest-value addition); persistent "model failure ledger" per
 project feeding the audit briefs; spec-diff folding (the v0.0.2 cycle is one
-informal instance — formalize it); a **security axis** in the swarm round
-(none exists yet — see §13).
+informal instance, formalize it); a **security axis** in the swarm round
+(none exists yet, see §13).
 
 ---
 
 ## 13. Open Loops (Honesty Clause)
 
 - **Physical-device acceptance is still pending.** Stage 7 was executed on an
-  Android 16 emulator with full evidence. The method's own rule — "only hands
-  prove the behavior" — ultimately wants a real phone: touch-feel of swipe
+  Android 16 emulator with full evidence. The method's own rule, "only hands
+  prove the behavior", ultimately wants a real phone: touch-feel of swipe
   thresholds, PBKDF2 timing on real hardware, SAF behavior with real providers.
 - **Auto-accept remains the weakest load-bearing claim.** Strongest evidence:
   the swipe over-trigger survived Stages 2–5 (spec, build, correctness audit,
@@ -639,4 +639,4 @@ SHA-256 matched published `SHA256SUMS` exactly.
 ---
 
 *The app is the artifact. The pipeline is the asset. The document is the
-transfer. — End of reference.*
+transfer. End of reference.*

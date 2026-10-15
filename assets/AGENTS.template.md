@@ -1,7 +1,7 @@
-# <PROJECT> — Agent Rules (The Artifact Method)
+# <PROJECT>, Agent Rules (The Artifact Method)
 
 The specification file `<SPEC_FILE>` is the source of truth. Read it before any
-implementation work. If reality contradicts it, stop and ask — spec amendments
+implementation work. If reality contradicts it, stop and ask, spec amendments
 are deliberate and attributed, never silent.
 
 ## Non-negotiables
@@ -33,7 +33,7 @@ are deliberate and attributed, never silent.
 - Topology: parallel read-only subagents for audits; single context for
   sequential, stateful, or irreversible work (deployments, releases, secrets).
 - Keep prompts as pointers. Context belongs in files: this spec, this AGENTS.md,
-  committed docs — not in chat.
+  committed docs, not in chat.
 - Prefer small, honest commits with conventional messages.
 
 ## Device/UI work (if applicable)

@@ -15,18 +15,18 @@ metadata:
 A complete development lifecycle where a human who does not write most of the
 code ships production-grade software by owning four things exclusively:
 
-1. **Intent** — what should exist and why (elicited, not assumed)
-2. **Contract** — a normative specification that is the single source of truth
-3. **Sequencing** — what happens next, in what order, with what topology
-4. **Gates** — checkpoints where work is verified before it advances
+1. **Intent**: what should exist and why (elicited, not assumed)
+2. **Contract**: a normative specification that is the single source of truth
+3. **Sequencing**: what happens next, in what order, with what topology
+4. **Gates**: checkpoints where work is verified before it advances
 
 Core claim: **a clear enough contract makes implementation a commodity.** The
 human's value concentrates at stage boundaries and gates, not in writing code.
 
-**Read first:** `references/The_Artifact_Method.md` is the canonical context for this
-skill — evidence, cost ledger, failure taxonomy, and open loops, and it opens with
-its own TL;DR. Read it before executing a stage you have not run before; this file
-is the operational digest, that document is the source.
+**Read first:** `The_Artifact_Method.md`, next to this file, is the canonical
+context for this skill: evidence, cost ledger, failure taxonomy, and open loops.
+It opens with its own TL;DR. Read it before executing a stage you have not run
+before; this file is the operational digest, that document is the source.
 
 ## Pipeline (one phase per shipped version; the loop is mandatory)
 
@@ -50,17 +50,17 @@ re-verified by download) · human acceptance.
 
 ## Laws
 
-1. Context Law — swarm for read-mostly analysis; solo for stateful,
+1. Context Law: swarm for read-mostly analysis; solo for stateful,
    irreversible work (deploy, release, secrets).
-2. Sequencing Law — correctness → design → deploy → test → fix → re-release.
+2. Sequencing Law: correctness → design → deploy → test → fix → re-release.
    Never polish pre-audit code.
-3. Gate Law — auto-accept agent output only when gates are strong. A gate only
+3. Gate Law: auto-accept agent output only when gates are strong. A gate only
    covers the failure classes it was built for; check coverage first.
-4. Artifact Law — context lives in files (spec, AGENTS.md, skills). A prompt
+4. Artifact Law: context lives in files (spec, AGENTS.md, skills). A prompt
    longer than two sentences is a smell.
-5. Freeze Law — spec frozen before build; amendments deliberate and attributed.
-6. Stop Law — a stage ends when its axis is settled, not when output stops.
-7. Ownership Law — the human owns product decisions: brand, license, scope,
+5. Freeze Law: spec frozen before build; amendments deliberate and attributed.
+6. Stop Law: a stage ends when its axis is settled, not when output stops.
+7. Ownership Law: the human owns product decisions: brand, license, scope,
    acceptance.
 
 ## Briefs (reuse verbatim shape; keep them short)
@@ -77,7 +77,7 @@ re-verified by download) · human acceptance.
 
 ## Starting a new TAM project
 
-1. Put the spec file in the repo root (and keep it there — it is the asset).
+1. Put the spec file in the repo root (and keep it there, it is the asset).
 2. Copy `assets/AGENTS.template.md` from this skill folder to the repo root as
    `AGENTS.md`; fill the placeholders (spec path, analyze/test/build commands).
 3. Load this skill; issue the one-shot brief.
@@ -110,9 +110,9 @@ off, timeout raised for npx cold start:
 }
 ```
 
-MCP tools load at session start — restart the agent after wiring.
+MCP tools load at session start, restart the agent after wiring.
 
-Fallback bundled in this skill: `scripts/uitap.py` — an adb + uiautomator
+Fallback bundled in this skill: `scripts/uitap.py`, an adb + uiautomator
 label-tap driver. Android-only and framework-agnostic: it works with any app
 that exposes accessibility labels (Flutter, Compose, native Views, React
 Native) and falls back to raw-coordinate taps for canvas-only apps. Needs
@@ -120,9 +120,9 @@ python3 and adb on PATH.
 
 ## What NOT to do
 
-- Do not skip Stage 3 or 7 — only hands prove behavior.
+- Do not skip Stage 3 or 7, only hands prove behavior.
 - Do not auto-accept unless a gate covers that failure class.
-- Do not put the spec, decisions, or process in chat prompts — artifacts.
+- Do not put the spec, decisions, or process in chat prompts, artifacts.
 - Do not release without the signing-identity ceremony (keystore backup,
   secrets, checksum verification).
 - Do not expand scope inside fix rounds.
