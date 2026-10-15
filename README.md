@@ -28,7 +28,7 @@ skills/the-artifact-method/
 ├── SKILL.md                        # the method, as an invocable skill
 ├── assets/AGENTS.template.md       # project governance — copy into each repo
 ├── references/The_Artifact_Method.md  # full v1.1 reference document
-└── scripts/uitap.py                # adb + uiautomator device-test driver
+└── scripts/uitap.py                # Android device-test driver (adb + uiautomator)
 ```
 
 ## Using it in a new project
@@ -38,6 +38,32 @@ skills/the-artifact-method/
    the placeholders (spec path, analyze/test/build commands).
 3. Load the skill and give the one-line brief: *"create this application from
    the spec; do not push it yet."*
+
+## Device driver (`scripts/uitap.py`)
+
+A black-box UI driver for Android device acceptance (Stage 7). It talks to the
+OS, not the app: `uiautomator dump` reads the accessibility tree, `input tap`
+sends the tap.
+
+- **Android-only, framework-agnostic.** Works with any app that exposes
+  accessibility labels — Flutter, Jetpack Compose, native Views, React Native —
+  and falls back to raw coordinates for canvas-only apps.
+- **Requirements:** python3 and `adb` on PATH (Android platform-tools), plus a
+  connected device or emulator. The skill itself has no runtime dependencies.
+- **Known traps (hit in the case study):** label matching is substring-based
+  ("Allow" matches the dialog *title* first — use coordinate taps for dialogs
+  whose title contains the button word); the keyboard moves fields between dump
+  and tap — re-dump after every keyboard transition.
+
+Usage:
+
+```bash
+python3 scripts/uitap.py dump-labels             # list visible labels + bounds
+python3 scripts/uitap.py tap "Save"              # tap center of first label match
+python3 scripts/uitap.py tap 540 1926            # raw coordinate tap
+python3 scripts/uitap.py wait "In your list"     # poll until visible (default 20 s)
+python3 scripts/uitap.py find "Continue"         # print match or None
+```
 
 ## License
 

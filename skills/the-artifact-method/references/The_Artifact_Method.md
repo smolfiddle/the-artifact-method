@@ -237,7 +237,8 @@ priority). Verified after binding:
 Honest limitation recorded at bind time: the running agent session could not use
 the newly bound MCP tools (they load at session start), so the first Stage 7 run
 was executed with a purpose-written **adb + uiautomator driver** instead
-(`uitap.py`: dump UI tree, match label, tap center; screenshot capture).
+(`uitap.py`: dump UI tree, match label, tap center; screenshot capture —
+Android-only, framework-agnostic).
 Both paths are harness-equivalent for black-box flows; the MCP path remains to be
 exercised in a future session (§13).
 
@@ -512,8 +513,9 @@ they exclude human time, hardware, and infrastructure.
    idempotent release creation) + **keystore ceremony** (PKCS12, random password,
    gitignore, off-machine backup) + checksum-in-release + download-and-verify
 8. **Device bridge config** (mobile-mcp snippet above; telemetry off; pinned version)
-9. **Device driver script** (adb + uiautomator label-tap helper — the Stage 7
-   fallback that proved sufficient) and the **evidence-bundle shape** (§10)
+9. **Device driver script** (adb + uiautomator label-tap helper — Android-only
+   but framework-agnostic; the Stage 7 fallback that proved sufficient) and
+   the **evidence-bundle shape** (§10)
 10. This document
 
 **Method v2.0 candidates** (not yet practiced): automated acceptance-runner
