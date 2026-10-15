@@ -38,7 +38,7 @@ studies are run; treat the current tooling as Android plus Flutter.
 
 | Stage | Name | Actor | Output |
 |---|---|---|---|
-| 0 | Elicitation | Human + AI interview | Numbered decision log |
+| 0 | Elicitation | Human + web AI interview | Decision log, then a drafted spec |
 | 1 | Contract | AI drafts, human freezes | Normative spec + acceptance criteria |
 | 2 | One-shot build | Builder (main context) | Working app, committed locally, never pushed yet |
 | 3 | Hiccup triage | Human uses the app | Obvious defects fixed, no scope growth |
@@ -71,6 +71,10 @@ re-verified by download) · human acceptance.
 
 ## Briefs (reuse verbatim shape; keep them short)
 
+- Elicitation (web AI chat): "Here is my idea: <idea>. Ask me about 30
+  forced-choice questions, each with an expert-default option. Keep asking
+  new rounds until you run out." Then: "Using The_Artifact_Method.md as the
+  template, draft the specification."
 - One-shot: "create this application from <SPEC>; do not push it yet"
 - Audit swarm: "scan the codebase for anomalies/bugs/needed adjustments; use 2
   read-only subagents"
@@ -83,11 +87,15 @@ re-verified by download) · human acceptance.
 
 ## Starting a new TAM project
 
-1. Put the spec file in the repo root (and keep it there, it is the asset).
-2. Copy `assets/AGENTS.template.md` from this skill folder to the repo root as
+1. Create the spec with the Stage 0 loop: seed the idea, and this repo's
+   The_Artifact_Method.md, into a web AI chat; answer rounds of about 30
+   forced-choice questions until new questions stop; then have the AI draft
+   the spec against the Stage 1 structure.
+2. Put the spec file in the repo root (and keep it there, it is the asset).
+3. Copy `assets/AGENTS.template.md` from this skill folder to the repo root as
    `AGENTS.md`; fill the placeholders (spec path, analyze/test/build commands).
-3. Load this skill; issue the one-shot brief.
-4. Never ship the first artifact. Never push until the pre-push sweep passes.
+4. Load this skill; issue the one-shot brief.
+5. Never ship the first artifact. Never push until the pre-push sweep passes.
 
 ## Gates & evidence rules
 

@@ -148,18 +148,36 @@ Stages 4, 5, and 7 are **swarm/harness rounds**; stages 6, 6b, 8, and 9 are
 ## 5. Stage Specifications
 
 ### Stage 0, Elicitation
-- Interview in **rounds of forced-choice questions** (the MangaCat elicitation
-  used 75 questions across 4 rounds of 30/30/10/5, per the practitioner's log).
-- Every question offers an **expert-default escape hatch** ("whatever is best").
-  The Oracle answers with preferences where taste matters and delegates where it
-  does not. This separates *preference* from *expertise* and merges them into one
-  decision log.
-- Group questions by concern: usage, data model, file behavior, UI, platform,
-  privacy, future-proofing.
-- The interviewer's job is to surface contradictions in the Oracle's answers
-  (e.g., "keep it simple" vs. "series tracker with all the shebang", resolved
-  via a simple/advanced mode toggle).
-- **Output:** a numbered decision log. Every later stage traces authority to it.
+Elicitation runs in a general-purpose **web AI chat**, not in the coding agent.
+The Oracle arrives with an idea, not a document, and leaves with a decision log
+and a drafted specification.
+
+The loop, as practiced:
+
+1. **Seed.** Describe the idea to the web AI in a few paragraphs: what it is,
+   who it is for, the rough shape.
+2. **Request questions.** Ask for roughly 30 forced-choice questions (choices
+   with an expert default, not open essays), grouped by concern: usage, data
+   model, file behavior, UI, platform, privacy, future-proofing.
+3. **Answer and delegate.** Answer with preferences where taste matters;
+   answer "whatever is best" where it does not. This separates *preference*
+   from *expertise* and merges them into one decision log.
+4. **Iterate.** Feed the answers back and ask for the next round of questions
+   that covers the next layer of context. Repeat until the question supply
+   dries up. In the case study this took four rounds (30/30/10/5) and produced
+   75 answered questions in about an hour.
+5. **Draft the spec.** When new questions stop coming, put The_Artifact_Method.md
+   into the AI's context and instruct it to draft the specification following
+   the Stage 1 structure below: goals and non-goals, data model, normative
+   format rules, error-handling matrix, architecture, locked decisions log,
+   acceptance criteria, performance targets, design tokens.
+
+The interviewer's job is to surface contradictions in the Oracle's answers
+(e.g., "keep it simple" vs. "series tracker with all the shebang", resolved
+via a simple/advanced mode toggle).
+
+**Output:** a numbered decision log plus a drafted normative specification.
+Every later stage traces authority to them; Stage 1 is the review and freeze.
 
 ### Stage 1, The Contract (Normative Specification)
 The spec must contain, at minimum:
@@ -536,7 +554,10 @@ they exclude human time, hardware, and infrastructure.
 ## 12. The Reusable Kit (copy to every new project)
 
 1. The spec **template** (§5 Stage 1 structure, goals/non-goals, data model,
-   normative formats, error matrix, locked decisions, acceptance criteria)
+   normative formats, error matrix, locked decisions, acceptance criteria) plus
+   the **elicitation loop** (§5 Stage 0): web AI seed, rounds of about 30
+   forced-choice questions until they dry up, then spec drafting with this
+   document in the AI's context
 2. `AGENTS.md` baseline (analyzer loop, permissions, never-push, commit-at-stage)
 3. The verbatim briefs (§10), including the release-packaging and test briefs
 4. Permission allowlist configuration

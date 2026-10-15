@@ -56,10 +56,15 @@ global. Zips are attached to the releases.
 
 ## Using it in a new project
 
-1. Put your specification file in the repo root. The spec is the asset.
-2. Copy `assets/AGENTS.template.md` to the repo root as `AGENTS.md` and fill
+1. Create the spec with the Stage 0 loop: put your idea, and this repo's
+   `The_Artifact_Method.md`, into a web AI chat; answer rounds of about 30
+   forced-choice questions until new questions stop (the case study used 75
+   across four rounds); then ask the AI to draft the spec against the Stage 1
+   structure.
+2. Put the specification file in the repo root. The spec is the asset.
+3. Copy `assets/AGENTS.template.md` to the repo root as `AGENTS.md` and fill
    the placeholders: spec path, analyze command, test command, build command.
-3. Load the skill and give the one-line brief: *"create this application from
+4. Load the skill and give the one-line brief: *"create this application from
    the spec; do not push it yet."*
 
 Then follow the pipeline in the reference. Every stage ends at a gate, and the
