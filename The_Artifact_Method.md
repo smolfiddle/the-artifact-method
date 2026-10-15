@@ -264,9 +264,10 @@ priority). Verified after binding:
 
 Honest limitation recorded at bind time: the running agent session could not use
 the newly bound MCP tools (they load at session start), so the first Stage 7 run
-was executed with a purpose-written **adb + uiautomator driver** instead
-(`uitap.py`: dump UI tree, match label, tap center; screenshot capture , 
-Android-only, framework-agnostic).
+was executed with a purpose-written **adb + uiautomator driver** instead:
+`uitap.py` parses the UI tree, matches labels, and taps (the only part that is
+annoying in shell), while install, screenshots, text input, and swipes went
+through raw adb calls. Android-only, framework-agnostic.
 Both paths are harness-equivalent for black-box flows; the MCP path remains to be
 exercised in a future session (§13).
 
