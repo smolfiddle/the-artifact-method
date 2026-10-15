@@ -546,9 +546,10 @@ they exclude human time, hardware, and infrastructure.
    idempotent release creation) + **keystore ceremony** (PKCS12, random password,
    gitignore, off-machine backup) + checksum-in-release + download-and-verify
 8. **Device bridge config** (mobile-mcp snippet above; telemetry off; pinned version)
-9. **Device driver script** (adb + uiautomator label-tap helper, Android-only
-   but framework-agnostic; the Stage 7 fallback that proved sufficient) and
-   the **evidence-bundle shape** (§10)
+9. **Device driver script** (adb + uiautomator; verbs: dump-labels, find with
+   --exact/--nth, tap, wait, wait-stable, shot, text, swipe, plus -s serial.
+   Android-only but framework-agnostic; the Stage 7 fallback that proved
+   sufficient) and the **evidence-bundle shape** (§10)
 10. This document
 
 **Method v2.0 candidates** (not yet practiced): automated acceptance-runner

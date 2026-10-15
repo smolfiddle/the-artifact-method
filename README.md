@@ -76,19 +76,26 @@ OS, not to the app: `uiautomator dump` reads the accessibility tree, and
   Falls back to raw coordinates for canvas only apps.
 - Requirements: python3 and `adb` on PATH (Android platform tools), plus a
   connected device or emulator. The skill itself has no runtime dependencies.
-- Known traps from the case study: label matching is substring based, so a tap
-  on "Allow" can hit the dialog title first; use coordinate taps for dialogs
-  whose title contains the button word. The keyboard moves fields between dump
-  and tap, so re-dump after every keyboard transition.
+- Known traps from testing: label matching is substring based by default, so a
+  tap on "Allow" can hit the dialog title first; use --exact or coordinate taps
+  for dialogs whose title contains the button word. The keyboard moves fields
+  between dump and tap, so re-dump after every keyboard transition. Swiping
+  while the keyboard is open can trigger glide typing (Gboard typed "to"
+  during a scroll test); hide the keyboard or swipe in the list area above it.
 
 Usage:
 
 ```bash
-python3 scripts/uitap.py dump-labels             # list visible labels and bounds
-python3 scripts/uitap.py tap "Save"              # tap center of first label match
-python3 scripts/uitap.py tap 540 1926            # raw coordinate tap
-python3 scripts/uitap.py wait "In your list"     # poll until visible (default 20 s)
-python3 scripts/uitap.py find "Continue"         # print match or None
+python3 scripts/uitap.py dump-labels                         # labels and bounds
+python3 scripts/uitap.py find "Save" --exact --nth 1         # select a match
+python3 scripts/uitap.py tap "Save"                          # tap first match
+python3 scripts/uitap.py tap 540 1926                        # raw coordinate tap
+python3 scripts/uitap.py wait "In your list"                 # poll until visible
+python3 scripts/uitap.py wait-stable --rounds 3              # UI stopped changing
+python3 scripts/uitap.py text "solo leveling"                # type into focus
+python3 scripts/uitap.py swipe 540 1700 540 900 --duration 250
+python3 scripts/uitap.py shot 07_tracker                     # save 07_tracker.png
+python3 scripts/uitap.py -s emulator-5554 tap "Unlock"       # pick a device
 ```
 
 ## Case study

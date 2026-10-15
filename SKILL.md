@@ -6,7 +6,7 @@ license: MIT
 metadata:
   audience: artifact-authors
   workflow: spec-driven
-  version: 0.1.1
+  version: 0.1.2
   opencode/slash: "true"
 ---
 
@@ -119,10 +119,12 @@ off, timeout raised for npx cold start:
 MCP tools load at session start, restart the agent after wiring.
 
 Fallback bundled in this skill: `scripts/uitap.py`, an adb + uiautomator
-label-tap driver. Android-only and framework-agnostic: it works with any app
-that exposes accessibility labels (Flutter, Compose, native Views, React
-Native) and falls back to raw-coordinate taps for canvas-only apps. Needs
-python3 and adb on PATH.
+device driver with eight verbs: dump-labels, find, tap (label or raw
+coordinates, --exact and --nth selectors), wait, wait-stable, shot, text, and
+swipe, plus -s for multi-device. Android-only and framework-agnostic: it works
+with any app that exposes accessibility labels (Flutter, Compose, native
+Views, React Native) and falls back to raw-coordinate taps for canvas-only
+apps. Needs python3 and adb on PATH.
 
 ## What NOT to do
 
