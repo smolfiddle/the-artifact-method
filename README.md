@@ -24,6 +24,14 @@ the source those instructions come from.
 - Reusable briefs: short prompts that point at artifacts instead of carrying
   context themselves.
 
+## Scope
+
+Exercised today on Android mobile apps built with Flutter. That is the path
+the case study covers and the one the bundled device driver was proven on.
+The method and the driver are framework-agnostic by design (accessibility
+labels with a coordinate fallback), and the intent is to broaden the skill
+to iOS and other stacks as new case studies are run.
+
 ## Install
 
 ```bash

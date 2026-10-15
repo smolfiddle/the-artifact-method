@@ -28,6 +28,12 @@ context for this skill: evidence, cost ledger, failure taxonomy, and open loops.
 It opens with its own TL;DR. Read it before executing a stage you have not run
 before; this file is the operational digest, that document is the source.
 
+**Scope today:** the exercised path is Android mobile apps built with Flutter.
+The method and the bundled device driver are framework-agnostic by design
+(accessibility-tree driven, with a coordinate fallback), but iOS and other
+stacks have not been tested. The skill is intended to broaden as new case
+studies are run; treat the current tooling as Android plus Flutter.
+
 ## Pipeline (one phase per shipped version; the loop is mandatory)
 
 | Stage | Name | Actor | Output |

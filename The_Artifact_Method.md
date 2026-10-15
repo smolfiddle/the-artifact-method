@@ -29,6 +29,10 @@
 > **Limits, honestly:** one case study, a spec-completable domain; no security
 > audit axis yet; auto-accept still a judgment call. See §13.
 >
+> **Scope today:** Android mobile apps built with Flutter, the exercised path.
+> The driver and the method are framework-agnostic by design; other stacks are
+> untested and are the intended expansion.
+>
 > **Map:** §4 pipeline · §5 stages · §6 laws · §7 failure taxonomy · §11 costs ·
 > §13 open loops · §14 fact ledger.
 
@@ -585,6 +589,9 @@ informal instance, formalize it); a **security axis** in the swarm round
 - **Per-stage cost attribution is missing.** The meter is project-level
   (¥7.76, 464 requests, 118,112,557 tokens overall); Phase 2's ¥3.72 is a
   subtraction, not a measurement, and no no-method counterfactual exists.
+- **Platform scope is Android plus Flutter for now.** The device harness and
+  the case study cover that path only. iOS and other frameworks are untested
+  and are where the method is intended to broaden next.
 
 ---
 
