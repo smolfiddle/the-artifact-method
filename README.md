@@ -1,3 +1,5 @@
+[![skills.sh](https://skills.sh/b/smolfiddle/the-artifact-method)](https://skills.sh/smolfiddle/the-artifact-method)
+
 # The Artifact Method
 
 An Agent Skill for spec-driven, human-orchestrated software development. It
