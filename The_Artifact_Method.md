@@ -1,7 +1,7 @@
 # The Artifact Method
 ## A Working Reference for Spec-Driven, Human-Orchestrated AI Software Development
 
-**Version:** 1.1 | **Date:** 2026-10-15 | **Case study:** MangaCat (github.com/smolfiddle/MangaCat), releases v0.0.1 and v0.0.2
+**Version:** 1.2 | **Date:** 2026-10-16 | **Case study:** MangaCat (github.com/smolfiddle/MangaCat), releases v0.0.1, v0.0.2, and v0.0.3
 **Author role:** The practitioner is referred to throughout as the **Artifact Author**.
 
 ---
@@ -22,7 +22,7 @@
 > pre-audit code; auto-accept only what a gate covers; context lives in files, not
 > prompts; the human owns every decision with no deterministic answer.
 >
-> **Evidence:** one real app (MangaCat) shipped across three tagged releases , 
+> **Evidence:** one real app (MangaCat) shipped across three tagged releases, 
 > signed artifacts, CI, 41 tests, device acceptance with 31 screenshots, for
 > ¥7.76 (~$1.15) metered API cost and roughly five human hours.
 >
@@ -61,7 +61,7 @@ the MangaCat build:
 **MangaCat ledger (the evidentiary basis of this document):**
 
 Phase 1, v0.0.1:
-~1 hour of specification conversation → one evening of build time → 16 commits
+~1 hour of specification conversation → one evening of build time → 19 commits
 total across the project (13 in the initial arc) → a signed, CI-backed,
 MIT-licensed, publicly released Android application → API spend ¥4.04 (~$0.60)
 for this phase, metered.
@@ -72,6 +72,12 @@ acceptance executed, one user-reported defect diagnosed and fixed, second signed
 release published with evidence artifacts → Phase 2 API spend ¥3.72, derived
 from the overall project meter of ¥7.76 (464 requests, 118,112,557 tokens)
 minus Phase 1 (provider dashboard; see §11).
+
+Phase 3, v0.0.3 (presentation pass):
+README rewritten with the paw logo and three emulator screenshots captured
+fresh, version bumped so artifacts are distinguishable, third release
+published with custom notes and a re-verified checksum chain. Docs-only;
+the app code is unchanged. Not metered.
 
 Every number in this document traces to a commit hash, a CI run ID, or a release
 URL recorded in §14 (Fact Ledger).
@@ -545,7 +551,9 @@ economy working as claimed; output-token compression attacks the most expensive
 vector of verbose models; milestone staging suppresses retry spirals, the true
 cost driver in agentic coding. Metering honesty: Phase 1 was metered live
 (¥4.04); Phase 2 is derived from the overall meter minus Phase 1
-(¥7.76 − ¥4.04 = ¥3.72). Only project-level aggregates exist, no per-stage
+(¥7.76 − ¥4.04 = ¥3.72). Phase 3, the companion skill packaging, and this
+document's own revisions were not metered. Only project-level aggregates
+exist, no per-stage
 split, and no counterfactual (no-method baseline). These are API marginal costs;
 they exclude human time, hardware, and infrastructure.
 
@@ -599,7 +607,7 @@ informal instance, formalize it); a **security axis** in the swarm round
   implemented and *verified mechanically* (aapt2 permission dump, `apk signer`
   check), but no adversarial swarm probed them. Add a security checklist to the
   swarm round, or an explicit security gate.
-- **Track record is one application project, two releases.** The method's
+- **Track record is one application project, three releases.** The method's
   generality is asserted from mechanism, not repetition. Run it on a
   different-shaped target (a backend, a team, an exploratory domain) before
   calling it a pattern. The linear-spec assumption is the most likely to break
@@ -620,9 +628,9 @@ informal instance, formalize it); a **security axis** in the swarm round
 ## 14. Fact Ledger (Evidence Anchors)
 
 **Repository:** github.com/smolfiddle/MangaCat (public, MIT)
-**Releases:** v0.0.1 (5 assets) · v0.0.2 (7 assets, marked Latest)
+**Releases:** v0.0.1 (5 assets) · v0.0.2 (7 assets) · v0.0.3 (5 assets, marked Latest)
 
-**Commits (16):**
+**Commits (19):**
 
 | Hash | Subject |
 |---|---|
@@ -642,15 +650,19 @@ informal instance, formalize it); a **security axis** in the swarm round
 | `f59a964` | ci: add analyze + test gate on push and pull requests |
 | `d88ebf9` | fix(tracker): gate swipe-delete behind a confirm dialog |
 | `91a9f07` | chore: bump version to 0.0.2 |
+| `8c7e1bb` | docs: sync README with 0.0.2 |
+| `78ecb32` | docs: add logo and screenshots to README; bump to 0.0.3 |
+| `caf254d` | chore: ignore local reference folder |
 
-**Tags:** `v0.0.1` · `v0.0.2`
+**Tags:** `v0.0.1` · `v0.0.2` · `v0.0.3`
 **CI runs (all success):** release v0.0.1 `38600366404` · release v0.0.2
-`38725416593` · ci gate `38717574720`, `38724638555`, `38725131624`
+`38725416593` · release v0.0.3 `38731588614` · ci gate `38717574720`,
+`38724638555`, `38725131624`, `38729135987` (green on every push since)
 **Test suite:** 41 tests (CSV codec, PBKDF2 vectors, repository semantics,
 fingerprint, PIN widget flows); `flutter analyze` zero-issue policy.
 **Metering:** overall project meter ¥7.76 (~$1.15) across 464 requests and
 118,112,557 tokens. Phase 1 metered live at ¥4.04 (~$0.60); Phase 2 derived as
-¥7.76 − ¥4.04 = ¥3.72 (~$0.55).
+¥7.76 − ¥4.04 = ¥3.72 (~$0.55). Phase 3 and later work: not metered.
 **Release identity:** PKCS12 keystore, 2048-bit RSA, 10,000-day validity, random
 48-hex password; `android/keystore/*.p12` and `android/key.properties` gitignored;
 CI secrets restore the same key (verified: CI-built APK signer `CN=MangaCat`).

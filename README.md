@@ -107,9 +107,10 @@ python3 scripts/uitap.py -s emulator-5554 tap "Unlock"       # pick a device
 
 The reference is built from one complete build:
 [MangaCat](https://github.com/smolfiddle/MangaCat), a signed, CI backed, tested
-Android app shipped across three released versions for a metered total of
-¥7.76 (~$1.15) in API cost and roughly five human hours, including device
-acceptance with a screenshot evidence bundle. The document states plainly
+Android app shipped across three released versions, the first two feature
+cycles metered at ¥7.76 (~$1.15) in API cost and roughly five human hours,
+including device acceptance with a screenshot evidence bundle. The third
+release was a documentation pass. The document states plainly
 where the method is proven and where it is not.
 
 ## License
