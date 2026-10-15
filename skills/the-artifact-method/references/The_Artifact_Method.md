@@ -6,6 +6,34 @@
 
 ---
 
+## TL;DR
+
+> A human who does not write most of the code ships production-grade software by
+> owning exactly four things: **intent** (what and why), **contract** (a frozen
+> spec), **sequencing** (what runs in what order, with what topology), and **gates**
+> (where work is verified). Everything else is delegated to AI agents.
+>
+> **Pipeline:** elicit decisions → freeze spec → one-shot build → hands-on triage
+> → two read-only audit swarms (correctness, then design) → solo ship → bind a
+> device bridge → black-box device test with an evidence bundle → fix loop →
+> re-release. The pipeline is a loop; defects after shipping re-enter at fix.
+>
+> **Laws that do the work:** swarms for reading, solo for shipping; never polish
+> pre-audit code; auto-accept only what a gate covers; context lives in files, not
+> prompts; the human owns every decision with no deterministic answer.
+>
+> **Evidence:** one real app (MangaCat) shipped across three tagged releases —
+> signed artifacts, CI, 41 tests, device acceptance with 31 screenshots — for
+> ¥7.76 (~$1.15) metered API cost and roughly five human hours.
+>
+> **Limits, honestly:** one case study, a spec-completable domain; no security
+> audit axis yet; auto-accept still a judgment call. See §13.
+>
+> **Map:** §4 pipeline · §5 stages · §6 laws · §7 failure taxonomy · §11 costs ·
+> §13 open loops · §14 fact ledger.
+
+---
+
 ## 1. What This Method Is
 
 The Artifact Method is a complete software development lifecycle in which a human

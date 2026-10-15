@@ -7,9 +7,10 @@ acceptance, fix loop, release — where the human owns intent, contract,
 sequencing, and gates while the agent owns the rest.
 
 Proven case study: a signed, CI-backed, tested Android app shipped across
-three tagged releases for under $2 in metered API cost (~5 human hours). Full method
-document, including the cost ledger, failure taxonomy, and open loops, is
-bundled at `skills/the-artifact-method/references/The_Artifact_Method.md`.
+three tagged releases for under $2 in metered API cost (~5 human hours). Full
+method document — cost ledger, failure taxonomy, open loops — is bundled at
+`skills/the-artifact-method/references/The_Artifact_Method.md`; start there,
+it opens with a TL;DR.
 
 ## Install
 

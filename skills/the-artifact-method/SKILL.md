@@ -23,7 +23,10 @@ code ships production-grade software by owning four things exclusively:
 Core claim: **a clear enough contract makes implementation a commodity.** The
 human's value concentrates at stage boundaries and gates, not in writing code.
 
-Full reference: `references/The_Artifact_Method.md` in this skill folder.
+**Read first:** `references/The_Artifact_Method.md` is the canonical context for this
+skill — evidence, cost ledger, failure taxonomy, and open loops, and it opens with
+its own TL;DR. Read it before executing a stage you have not run before; this file
+is the operational digest, that document is the source.
 
 ## Pipeline (one phase per shipped version; the loop is mandatory)
 
