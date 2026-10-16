@@ -22,16 +22,20 @@ Commands:
   dump-labels [selector] [--json]        list matching nodes
   find <selector args>                   print first match, exit 1 on miss
   tap <selector args> | tap X Y | tap --xy X Y
-      [--retry N] [--retry-delay S] [--dry-run] [--expect L] [--expect-timeout S]
+      [--retry N] [--retry-delay S] [--dry-run]
+      [--expect L [--expect-exact | --expect-regex]] [--expect-timeout S]
   wait <selector args>                   poll until a match exists
   wait-gone <selector args>              poll until no match exists
   wait-stable [--rounds N] [--save FILE] hash a normalized tree signature
   scroll-to <selector args> [--direction up|down|left|right] [--max N]
-  text [--into LABEL] [--clear] <value>  type into focus; --into taps first
+                                         [--no-hide-ime]
+  text [--into LABEL] [--clear] <value>  type into focus; --into taps first.
+                                         %s is the space token; literal %s in
+                                         input is typed by segmenting
   clear [--length N]                     clear the focused text field
   key <NAME|CODE>                        HOME, BACK, ENTER, TAB, ESCAPE,
                                          DEL, MOVE_END, DPAD_UP, ... or a number
-  swipe up|down|left|right [--distance P] [--duration MS]
+  swipe up|down|left|right [--distance P] [--duration MS] [--no-hide-ime]
   swipe X1 Y1 X2 Y2 [--duration MS]
   shot <name>                            screenshot to <name>.png
   screen                                 physical size and density
@@ -44,7 +48,9 @@ Global options go before the command: -s SERIAL, --verbose, --log FILE,
 Exit codes: 0 hit/success, 1 miss/timeout, 2 usage or device error.
 """
 import argparse
+import contextlib
 import hashlib
+import io
 import json
 import os
 import re
@@ -54,7 +60,7 @@ import time
 import xml.etree.ElementTree as ET
 from collections import namedtuple
 
-VERSION = "0.2.0"
+VERSION = "0.2.1"
 ADB = os.environ.get("ADB", "adb")
 
 Node = namedtuple(
@@ -64,6 +70,10 @@ Node = namedtuple(
 
 class AdbError(Exception):
     pass
+
+
+# Device-level failures that polling verbs must not swallow as "not yet".
+FATAL_ADB_HINTS = ("offline", "not found", "unauthorized", "no devices")
 
 
 class Logger:
@@ -207,7 +217,8 @@ def node_line(n):
     x1, y1, x2, y2 = n.bounds
     return (
         f"text={n.text!r} desc={n.desc!r} id={n.rid!r} class={n.klass!r} "
-        f"bounds=[{x1},{y1},{x2},{y2}] clickable={int(n.clickable)}"
+        f"bounds=[{x1},{y1},{x2},{y2}] clickable={int(n.clickable)} "
+        f"enabled={int(n.enabled)} pkg={n.package!r}"
     )
 
 
@@ -277,6 +288,17 @@ class Selector:
         return hits
 
 
+def selector_namespace(**overrides):
+    ns = argparse.Namespace(
+        label=None, id=None, exact=False, regex=False, case_sensitive=False,
+        package=None, nth=0, topmost=False, bottommost=False, leftmost=False,
+        rightmost=False,
+    )
+    for key, value in overrides.items():
+        setattr(ns, key, value)
+    return ns
+
+
 def selector_env(serial, selector, verbose=False):
     ok, xml, reason = dump(serial)
     if not ok:
@@ -328,7 +350,9 @@ def wait_match(serial, selector, timeout, interval, want_gone=False, verbose=Fal
     while True:
         try:
             _, _, hits = selector_env(serial, selector, verbose=verbose and not want_gone)
-        except AdbError:
+        except AdbError as exc:
+            if any(hint in str(exc).lower() for hint in FATAL_ADB_HINTS):
+                raise
             hits = []
         found = bool(hits)
         if found != want_gone:
@@ -351,30 +375,32 @@ def ime_shown(serial):
     return "mInputShown=true" in (cp.stdout or "")
 
 
-def gesture(serial, direction, distance=None, duration_ms=300):
-    if ime_shown(serial):
+def gesture_points(w, h, direction, distance=None):
+    """Pure swipe geometry, centered on screen; distance applies to both axes."""
+    cx, cy = w // 2, h // 2
+    if direction in ("up", "down"):
+        d = int(distance) if distance else int(h * 0.45)
+        if direction == "up":
+            return cx, cy + d // 2, cx, cy - d // 2
+        return cx, cy - d // 2, cx, cy + d // 2
+    if direction in ("left", "right"):
+        d = int(distance) if distance else int(w * 0.45)
+        if direction == "left":
+            return cx + d // 2, cy, cx - d // 2, cy
+        return cx - d // 2, cy, cx + d // 2, cy
+    raise AdbError(f"unknown swipe direction {direction!r}")
+
+
+def gesture(serial, direction, distance=None, duration_ms=300, hide_ime=True):
+    if hide_ime and ime_shown(serial):
         # A swipe over an open software keyboard glide-types (observed six
         # "to"s in one scroll session). Hide the IME first; a BACK press with a
-        # visible keyboard only closes the keyboard.
+        # visible keyboard only closes the keyboard. --no-hide-ime opts out for
+        # apps where BACK has side effects.
         adb(serial, ["shell", "input", "keyevent", "4"], check=False)
         time.sleep(0.5)
     w, h = screen_size(serial)
-    cx, cy = w // 2, h // 2
-    if distance is None:
-        distance = int(h * 0.45)
-    d = int(distance)
-    if direction == "up":
-        x1, y1, x2, y2 = cx, cy + d // 2, cx, cy - d // 2
-    elif direction == "down":
-        x1, y1, x2, y2 = cx, cy - d // 2, cx, cy + d // 2
-    elif direction == "left":
-        half = int(w * 0.35)
-        x1, y1, x2, y2 = w - half, cy, half, cy
-    elif direction == "right":
-        half = int(w * 0.35)
-        x1, y1, x2, y2 = half, cy, w - half, cy
-    else:
-        raise AdbError(f"unknown swipe direction {direction!r}")
+    x1, y1, x2, y2 = gesture_points(w, h, direction, distance)
     adb(serial, ["shell", "input", "swipe", str(x1), str(y1), str(x2), str(y2), str(duration_ms)])
     time.sleep(0.6)
     return x1, y1, x2, y2
@@ -461,6 +487,57 @@ def selftest():
         sel(label="Done", topmost=True).apply_order(both)
     )
     check(ordered[0][1].bounds[1] == 400, "topmost ordering")
+    ns = selector_namespace()
+    check(ns.label is None and ns.nth == 0 and ns.exact is False, "selector namespace defaults")
+    check(selector_namespace(label="x").label == "x", "selector namespace overrides")
+
+    up = gesture_points(1080, 2400, "up", 500)
+    check(abs(up[1] - up[3]) == 500 and up[0] == up[2], "gesture up distance")
+    down = gesture_points(1080, 2400, "down")
+    check(down[3] > down[1], "gesture down direction")
+    left = gesture_points(1080, 2400, "left", 500)
+    check(left[0] - left[2] == 500 and left[1] == left[3], "gesture left distance")
+    right = gesture_points(1080, 2400, "right")
+    check(right[2] > right[0], "gesture right direction")
+
+    check(_split_literal_percent_s("plain") == ["plain"], "percent-s split plain")
+    check(_split_literal_percent_s("100%s off") == ["100", " off"], "percent-s split literal")
+    check(_space_escape("a b") == "a%sb", "space escape")
+
+    line = node_line(nodes[0][1])
+    check("pkg=" in line and "enabled=" in line, "node_line fields")
+
+    samples = [
+        (["dump-labels"], "dump-labels"),
+        (["find", "Save"], "find"),
+        (["tap", "Save"], "tap"),
+        (["tap", "--xy", "10", "20"], "tap"),
+        (["wait", "X"], "wait"),
+        (["wait-gone", "X"], "wait-gone"),
+        (["wait-stable"], "wait-stable"),
+        (["scroll-to", "X"], "scroll-to"),
+        (["text", "hello"], "text"),
+        (["clear"], "clear"),
+        (["key", "BACK"], "key"),
+        (["swipe", "up"], "swipe"),
+        (["swipe", "1", "2", "3", "4"], "swipe"),
+        (["shot", "x"], "shot"),
+        (["screen"], "screen"),
+        (["version"], "version"),
+    ]
+    for argv, expected in samples:
+        parsed = build_parser().parse_args(argv)
+        check(parsed.cmd == expected, f"parser smoke {argv[0]}")
+    check(build_parser().parse_args(["-s", "abc", "find", "X"]).serial == "abc", "global before subcommand")
+    check(build_parser().parse_args(["find", "X", "-s", "abc"]).serial == "abc", "global after subcommand")
+    check(build_parser().parse_args(["find", "X", "--verbose"]).verbose is True, "verbose after subcommand")
+    with contextlib.redirect_stderr(io.StringIO()):
+        try:
+            build_parser().parse_args(["find", "X", "--exact", "--regex"])
+            check(False, "exact plus regex rejected")
+        except SystemExit as exc:
+            check(exc.code == 2, "exact plus regex exit code")
+
     js = json.dumps([node_json(n) for _, n in nodes])
     check('"bounds": [10, 20, 210, 100]' in js.replace("\n", " "), "json serialization")
     print(f"selftest ok ({checks} checks)")
@@ -503,8 +580,9 @@ def build_parser():
         if label:
             sp.add_argument("label", nargs="?")
         sp.add_argument("--id", default=None, help="match by resource id")
-        sp.add_argument("--exact", action="store_true")
-        sp.add_argument("--regex", action="store_true")
+        mode = sp.add_mutually_exclusive_group()
+        mode.add_argument("--exact", action="store_true")
+        mode.add_argument("--regex", action="store_true")
         sp.add_argument("--case-sensitive", action="store_true")
         sp.add_argument("--package", default=None)
         sp.add_argument("--nth", type=int, default=0)
@@ -525,8 +603,9 @@ def build_parser():
     t.add_argument("target", nargs="*")
     t.add_argument("--xy", nargs=2, type=int, metavar=("X", "Y"))
     t.add_argument("--id", default=None)
-    t.add_argument("--exact", action="store_true")
-    t.add_argument("--regex", action="store_true")
+    t_mode = t.add_mutually_exclusive_group()
+    t_mode.add_argument("--exact", action="store_true")
+    t_mode.add_argument("--regex", action="store_true")
     t.add_argument("--case-sensitive", action="store_true")
     t.add_argument("--package", default=None)
     t.add_argument("--nth", type=int, default=0)
@@ -538,6 +617,9 @@ def build_parser():
     t.add_argument("--retry-delay", type=float, default=0.4)
     t.add_argument("--dry-run", action="store_true")
     t.add_argument("--expect", default=None, help="verify this label after tapping")
+    e_mode = t.add_mutually_exclusive_group()
+    e_mode.add_argument("--expect-exact", action="store_true")
+    e_mode.add_argument("--expect-regex", action="store_true")
     t.add_argument("--expect-timeout", type=float, default=5)
 
     w = new_sub("wait", help="poll until a match exists")
@@ -561,6 +643,7 @@ def build_parser():
     st.add_argument("--direction", choices=["up", "down", "left", "right"], default="up")
     st.add_argument("--max", type=int, default=6, dest="max_swipes")
     st.add_argument("--interval", type=float, default=0.8)
+    st.add_argument("--no-hide-ime", action="store_true")
 
     tx = new_sub("text", help="type into the focused field")
     tx.add_argument("value", nargs="+")
@@ -577,6 +660,8 @@ def build_parser():
     sw.add_argument("coords", nargs="+")
     sw.add_argument("--distance", type=int, default=None)
     sw.add_argument("--duration", type=int, default=300)
+    sw.add_argument("--no-hide-ime", action="store_true",
+                    help="do not send BACK to hide the keyboard before swiping")
 
     sh = new_sub("shot", help="screenshot to <name>.png")
     sh.add_argument("name")
@@ -631,6 +716,14 @@ def cmd_tap(args, serial, log):
         return 0
     target = args.target
     if len(target) == 2 and all(t.lstrip("-").isdigit() for t in target):
+        joined = " ".join(target)
+        _, _, label_hits = selector_env(serial, Selector(selector_namespace(label=joined)))
+        if label_hits:
+            print(
+                f"warning: coordinates {joined!r} also match a visible label; "
+                f"tapping the coordinates. Use --xy to skip this check.",
+                file=sys.stderr,
+            )
         x, y = int(target[0]), int(target[1])
         if args.dry_run:
             print(f"would tap raw ({x},{y})")
@@ -658,10 +751,11 @@ def cmd_tap(args, serial, log):
             print(f"tapped {sel.describe()} at ({x},{y})")
             log.write(f"tap {sel.describe()} -> ({x},{y}) attempt {attempt}")
             if args.expect:
-                esc = argparse.Namespace(
-                    label=args.expect, id=None, exact=False, regex=False,
-                    case_sensitive=False, package=None, nth=0, topmost=False,
-                    bottommost=False, leftmost=False, rightmost=False,
+                esc = selector_namespace(
+                    label=args.expect,
+                    exact=args.expect_exact,
+                    regex=args.expect_regex,
+                    case_sensitive=args.case_sensitive,
                 )
                 ok, _ = wait_match(serial, Selector(esc), args.expect_timeout, 0.5)
                 if ok:
@@ -750,7 +844,8 @@ def cmd_scroll_to(args, serial, log):
             return 0
         if swipe == args.max_swipes:
             break
-        gesture(serial, args.direction, duration_ms=300)
+        gesture(serial, args.direction, duration_ms=300,
+                hide_ime=not args.no_hide_ime)
         time.sleep(args.interval)
     print(f"MISS: {sel.describe()} not found after {args.max_swipes} swipe(s)", file=sys.stderr)
     log.write(f"scroll-to {sel.describe()} -> miss")
@@ -759,19 +854,53 @@ def cmd_scroll_to(args, serial, log):
 
 def do_clear(serial, length):
     adb(serial, ["shell", "input", "keyevent", "123"])
-    codes = " ".join(["67"] * max(1, length))
-    adb(serial, ["shell", "input", "keyevent"] + codes.split())
+    remaining = max(1, length)
+    while remaining > 0:
+        chunk = min(20, remaining)
+        adb(serial, ["shell", "input", "keyevent"] + ["67"] * chunk)
+        remaining -= chunk
     time.sleep(0.4)
+
+
+def _space_escape(value):
+    return value.replace(" ", "%s")
+
+
+def _split_literal_percent_s(value):
+    return value.split("%s")
+
+
+def _type_chunk(serial, chunk):
+    if not chunk:
+        return
+    escaped = _space_escape(chunk)
+    quoted = "'" + escaped.replace("'", "'\\''") + "'"
+    adb(serial, ["shell", "input", "text", quoted])
+
+
+def send_text(serial, value):
+    if any(ord(ch) > 127 for ch in value):
+        print(
+            "ERROR: adb input text cannot type non-ASCII characters; "
+            "install ADBKeyboard for unicode input",
+            file=sys.stderr,
+        )
+        return False
+    parts = _split_literal_percent_s(value)
+    for index, part in enumerate(parts):
+        _type_chunk(serial, part)
+        if index < len(parts) - 1:
+            adb(serial, ["shell", "input", "text", "%"])
+            adb(serial, ["shell", "input", "text", "s"])
+    time.sleep(0.6)
+    print(f"typed {value!r}")
+    return True
 
 
 def cmd_text(args, serial, log):
     value = " ".join(args.value)
     if args.into:
-        esc = argparse.Namespace(
-            label=args.into, id=None, exact=False, regex=False, case_sensitive=False,
-            package=None, nth=0, topmost=False, bottommost=False, leftmost=False,
-            rightmost=False,
-        )
+        esc = selector_namespace(label=args.into)
         _, parent, hits = selector_env(serial, Selector(esc))
         if not hits:
             print(f"MISS: no node matching --into {args.into!r}", file=sys.stderr)
@@ -784,18 +913,8 @@ def cmd_text(args, serial, log):
         tap_center(serial, clicked_elem(field[0], parent, field[1]))
     if args.clear:
         do_clear(serial, TEXT_ESCAPE_LIMIT)
-    if any(ord(ch) > 127 for ch in value):
-        print(
-            "ERROR: adb input text cannot type non-ASCII characters; "
-            "install ADBKeyboard for unicode input",
-            file=sys.stderr,
-        )
+    if not send_text(serial, value):
         return 2
-    escaped = value.replace(" ", "%s")
-    quoted = "'" + escaped.replace("'", "'\\''") + "'"
-    adb(serial, ["shell", "input", "text", quoted])
-    time.sleep(0.6)
-    print(f"typed {value!r}")
     log.write(f"text {value!r} -> typed")
     return 0
 
@@ -829,7 +948,10 @@ def cmd_key(args, serial, log):
 def cmd_swipe(args, serial, log):
     coords = args.coords
     if len(coords) == 1 and coords[0] in ("up", "down", "left", "right"):
-        x1, y1, x2, y2 = gesture(serial, coords[0], args.distance, args.duration)
+        x1, y1, x2, y2 = gesture(
+            serial, coords[0], args.distance, args.duration,
+            hide_ime=not args.no_hide_ime,
+        )
     elif len(coords) == 4 and all(c.lstrip("-").isdigit() for c in coords):
         x1, y1, x2, y2 = (int(c) for c in coords)
         adb(serial, ["shell", "input", "swipe", str(x1), str(y1), str(x2), str(y2), str(args.duration)])

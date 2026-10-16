@@ -105,14 +105,18 @@ OS, not to the app: `uiautomator dump` reads the accessibility tree, and
   often not the one that accepts the tap), `--retry` for animated screens,
   `--dry-run` to author safely, `--expect` to assert the next screen, transient
   uiautomator errors tolerated while polling, and gestures hide the open
-  keyboard first.
+  keyboard first (opt out with `--no-hide-ime` on swipe and scroll-to;
+  device-level failures like offline devices fail fast instead of
+  polling to timeout).
 - Exit codes: 0 hit or success, 1 miss or timeout, 2 device or usage error.
 - Traps found in testing: label matching is substring based, so a tap on
   "Allow" can hit the dialog title first (use `--exact` or coordinates); the
   keyboard moves fields between dump and tap, so re-dump after transitions; the
   first keystroke after a navigation can be swallowed during the focus change,
   so run `wait-stable` before typing; multi-line labels are normalized to
-  single spaces, so "#1 Solo" matches a row rendered across lines.
+  single spaces, so "#1 Solo" matches a row rendered across lines; `%s`
+  is the device-side space token, so literal `%s` input is typed by
+  segmenting it, and `--exact` with `--regex` is rejected up front.
 
 Usage:
 
