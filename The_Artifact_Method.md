@@ -33,6 +33,9 @@
 > The driver and the method are framework-agnostic by design; other stacks are
 > untested and are the intended expansion.
 >
+> **Audience:** written for the human Artifact Author. Agents execute from
+> SKILL.md and consult this reference on demand.
+>
 > **Map:** §4 pipeline · §5 stages · §6 laws · §7 failure taxonomy · §11 costs ·
 > §13 open loops · §14 fact ledger.
 

@@ -23,10 +23,13 @@ code ships production-grade software by owning four things exclusively:
 Core claim: **a clear enough contract makes implementation a commodity.** The
 human's value concentrates at stage boundaries and gates, not in writing code.
 
-**Read first:** `The_Artifact_Method.md`, next to this file, is the canonical
-context for this skill: evidence, cost ledger, failure taxonomy, and open loops.
-It opens with its own TL;DR. Read it before executing a stage you have not run
-before; this file is the operational digest, that document is the source.
+**Reference, not required reading:** `The_Artifact_Method.md`, next to this
+file, is the full method document, written for the human Artifact Author:
+rationale, case-study evidence, cost ledger, failure taxonomy, open loops.
+This file (SKILL.md) is the operational contract for agents. Consult the
+reference on demand: when planning a project's pipeline, when a gate or
+auto-accept decision is contested, when diagnosing a failure class, or when
+the human asks for the full method. Do not load it for routine stage work.
 
 **Scope today:** the exercised path is Android mobile apps built with Flutter.
 The method and the bundled device driver are framework-agnostic by design

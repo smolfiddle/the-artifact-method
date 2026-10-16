@@ -45,6 +45,24 @@ agent's skills directory, for example `.agents/skills/the-artifact-method/`
 for a project or `~/.config/opencode/skills/the-artifact-method/` for opencode
 global. Zips are attached to the releases.
 
+## Requirements
+
+The skill itself is plain markdown: no runtime, no dependencies. It works with
+any Agent Skills compatible agent.
+
+For the device driver (`scripts/uitap.py`, the Android acceptance step):
+
+- python3 3.9 or newer
+- `adb` on PATH (Android platform tools), or the `ADB` environment variable
+  pointing at the binary
+- a connected Android device or a running emulator
+
+Optional: mobile-mcp wired into the agent for the richer interactive path
+(config snippet in SKILL.md).
+
+For replicating the full pipeline on the case-study stack, a git host and
+GitHub Actions are useful but not required; every other step runs locally.
+
 ## What's inside
 
 | Path | Purpose |
