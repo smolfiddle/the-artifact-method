@@ -298,7 +298,9 @@ the newly bound MCP tools (they load at session start), so the first Stage 7 run
 was executed with a purpose-written **adb + uiautomator driver** instead:
 `uitap.py` parses the UI tree, matches labels, and taps (the only part that is
 annoying in shell), while install, screenshots, text input, and swipes went
-through raw adb calls. Android-only, framework-agnostic.
+through raw adb calls. The bundled driver has since absorbed screenshot, text,
+clear, key, and swipe verbs of its own (v0.2.0). Android-only,
+framework-agnostic.
 Both paths are harness-equivalent for black-box flows; the MCP path remains to be
 exercised in a future session (§13).
 

@@ -96,9 +96,8 @@ OS, not to the app: `uiautomator dump` reads the accessibility tree, and
 
 - Android only, framework agnostic. Works with any app that exposes
   accessibility labels: Flutter, Jetpack Compose, native Views, React Native.
-  Falls back to raw coordinates for canvas only apps.
-- Requirements: python3 and `adb` on PATH (Android platform tools), plus a
-  connected device or emulator. The skill itself has no runtime dependencies.
+  Falls back to raw coordinates for canvas only apps. Setup is covered in
+  Requirements above.
 - Selectors: substring by default, plus `--exact`, `--regex`, `--id`,
   `--package`, `--nth`, and position ordering (`--topmost`, `--bottommost`,
   `--leftmost`, `--rightmost`).
@@ -123,7 +122,7 @@ python3 scripts/uitap.py dump-labels --json             # machine readable
 python3 scripts/uitap.py find "Save" --exact            # exit 1 on miss
 python3 scripts/uitap.py find "#1" --topmost --json     # ordered, structured
 python3 scripts/uitap.py tap "Unlock" --expect "MangaCat.csv"
-python3 scripts/uitap.py tap "Save" --retry 3 --dry-run
+python3 scripts/uitap.py tap "Save" --retry 3
 python3 scripts/uitap.py wait-gone "Loading"
 python3 scripts/uitap.py wait-stable --save tree.xml
 python3 scripts/uitap.py scroll-to "Series Two" --max 4
@@ -132,7 +131,7 @@ python3 scripts/uitap.py clear
 python3 scripts/uitap.py key BACK
 python3 scripts/uitap.py swipe up --distance 900
 python3 scripts/uitap.py shot 07_tracker
-python3 scripts/uitap.py -s emulator-5554 --log run.log selftest
+python3 scripts/uitap.py -s emulator-5554 --verbose find "In your list"
 ```
 
 ## Case study
