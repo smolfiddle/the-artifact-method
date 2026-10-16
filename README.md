@@ -148,6 +148,13 @@ including device acceptance with a screenshot evidence bundle. The third
 release was a documentation pass. The document states plainly
 where the method is proven and where it is not.
 
+## Support
+
+Maintained by one author, in the open. Issues, reviews, and pull requests
+are welcome; response times are best-effort. The reference document states
+plainly where the method is proven and where it is not, so treat its open
+loops as the current boundary.
+
 ## License
 
 MIT, see [LICENSE](LICENSE).
