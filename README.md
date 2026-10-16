@@ -74,33 +74,47 @@ release loop repeats until the acceptance criteria pass on a device.
 
 Black-box UI driver for Android device acceptance (stage 7). It talks to the
 OS, not to the app: `uiautomator dump` reads the accessibility tree, and
-`input tap` sends taps.
+`input tap` sends taps. One file, python3 plus adb only.
 
 - Android only, framework agnostic. Works with any app that exposes
   accessibility labels: Flutter, Jetpack Compose, native Views, React Native.
   Falls back to raw coordinates for canvas only apps.
 - Requirements: python3 and `adb` on PATH (Android platform tools), plus a
   connected device or emulator. The skill itself has no runtime dependencies.
-- Known traps from testing: label matching is substring based by default, so a
-  tap on "Allow" can hit the dialog title first; use --exact or coordinate taps
-  for dialogs whose title contains the button word. The keyboard moves fields
-  between dump and tap, so re-dump after every keyboard transition. Swiping
-  while the keyboard is open can trigger glide typing (Gboard typed "to"
-  during a scroll test); hide the keyboard or swipe in the list area above it.
+- Selectors: substring by default, plus `--exact`, `--regex`, `--id`,
+  `--package`, `--nth`, and position ordering (`--topmost`, `--bottommost`,
+  `--leftmost`, `--rightmost`).
+- Reliability: taps land on the nearest clickable ancestor (the labeled node is
+  often not the one that accepts the tap), `--retry` for animated screens,
+  `--dry-run` to author safely, `--expect` to assert the next screen, transient
+  uiautomator errors tolerated while polling, and gestures hide the open
+  keyboard first.
+- Exit codes: 0 hit or success, 1 miss or timeout, 2 device or usage error.
+- Traps found in testing: label matching is substring based, so a tap on
+  "Allow" can hit the dialog title first (use `--exact` or coordinates); the
+  keyboard moves fields between dump and tap, so re-dump after transitions; the
+  first keystroke after a navigation can be swallowed during the focus change,
+  so run `wait-stable` before typing; multi-line labels are normalized to
+  single spaces, so "#1 Solo" matches a row rendered across lines.
 
 Usage:
 
 ```bash
-python3 scripts/uitap.py dump-labels                         # labels and bounds
-python3 scripts/uitap.py find "Save" --exact --nth 1         # select a match
-python3 scripts/uitap.py tap "Save"                          # tap first match
-python3 scripts/uitap.py tap 540 1926                        # raw coordinate tap
-python3 scripts/uitap.py wait "In your list"                 # poll until visible
-python3 scripts/uitap.py wait-stable --rounds 3              # UI stopped changing
-python3 scripts/uitap.py text "solo leveling"                # type into focus
-python3 scripts/uitap.py swipe 540 1700 540 900 --duration 250
-python3 scripts/uitap.py shot 07_tracker                     # save 07_tracker.png
-python3 scripts/uitap.py -s emulator-5554 tap "Unlock"       # pick a device
+python3 scripts/uitap.py dump-labels                    # all labeled nodes
+python3 scripts/uitap.py dump-labels --json             # machine readable
+python3 scripts/uitap.py find "Save" --exact            # exit 1 on miss
+python3 scripts/uitap.py find "#1" --topmost --json     # ordered, structured
+python3 scripts/uitap.py tap "Unlock" --expect "MangaCat.csv"
+python3 scripts/uitap.py tap "Save" --retry 3 --dry-run
+python3 scripts/uitap.py wait-gone "Loading"
+python3 scripts/uitap.py wait-stable --save tree.xml
+python3 scripts/uitap.py scroll-to "Series Two" --max 4
+python3 scripts/uitap.py text --into "Search title or artist" --clear "solo"
+python3 scripts/uitap.py clear
+python3 scripts/uitap.py key BACK
+python3 scripts/uitap.py swipe up --distance 900
+python3 scripts/uitap.py shot 07_tracker
+python3 scripts/uitap.py -s emulator-5554 --log run.log selftest
 ```
 
 ## Case study

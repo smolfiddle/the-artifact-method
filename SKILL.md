@@ -6,7 +6,7 @@ license: MIT
 metadata:
   audience: artifact-authors
   workflow: spec-driven
-  version: 0.1.2
+  version: 0.2.0
   opencode/slash: "true"
 ---
 
@@ -127,12 +127,18 @@ off, timeout raised for npx cold start:
 MCP tools load at session start, restart the agent after wiring.
 
 Fallback bundled in this skill: `scripts/uitap.py`, an adb + uiautomator
-device driver with eight verbs: dump-labels, find, tap (label or raw
-coordinates, --exact and --nth selectors), wait, wait-stable, shot, text, and
-swipe, plus -s for multi-device. Android-only and framework-agnostic: it works
-with any app that exposes accessibility labels (Flutter, Compose, native
-Views, React Native) and falls back to raw-coordinate taps for canvas-only
-apps. Needs python3 and adb on PATH.
+device driver. Verbs: dump-labels, find, tap, wait, wait-gone, wait-stable,
+scroll-to, text (--into, --clear), clear, key, swipe, shot, screen, selftest,
+version. Selectors: substring, --exact, --regex, --id, --package, --nth, and
+position ordering (--topmost, --bottommost, --leftmost, --rightmost).
+Reliability: taps land on the nearest clickable ancestor, --retry and
+--dry-run, --expect assertions after a tap, transient-error tolerance while
+polling, and gestures hide the open keyboard first. Globals: -s, --verbose,
+--log, --json. Exit codes: 0 hit, 1 miss or timeout, 2 device or usage error.
+Android-only and framework-agnostic: works with any app that exposes
+accessibility labels (Flutter, Compose, native Views, React Native) and falls
+back to raw-coordinate taps for canvas-only apps. Needs python3 and adb on
+PATH.
 
 ## What NOT to do
 
