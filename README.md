@@ -113,7 +113,8 @@ OS, not to the app: `uiautomator dump` reads the accessibility tree, and
   "Allow" can hit the dialog title first (use `--exact` or coordinates); the
   keyboard moves fields between dump and tap, so re-dump after transitions; the
   first keystroke after a navigation can be swallowed during the focus change,
-  so run `wait-stable` before typing; multi-line labels are normalized to
+  so `text --into` now taps and waits for the screen to settle before typing
+  (opt out with `--no-settle`); multi-line labels are normalized to
   single spaces, so "#1 Solo" matches a row rendered across lines; `%s`
   is the device-side space token, so literal `%s` input is typed by
   segmenting it, and `--exact` with `--regex` is rejected up front.
@@ -131,6 +132,7 @@ python3 scripts/uitap.py wait-gone "Loading"
 python3 scripts/uitap.py wait-stable --save tree.xml
 python3 scripts/uitap.py scroll-to "Series Two" --max 4
 python3 scripts/uitap.py text --into "Search title or artist" --clear "solo"
+python3 scripts/uitap.py text --into "Search title or artist" --no-settle "solo"
 python3 scripts/uitap.py clear
 python3 scripts/uitap.py key BACK
 python3 scripts/uitap.py swipe up --distance 900

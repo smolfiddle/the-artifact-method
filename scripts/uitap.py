@@ -29,7 +29,11 @@ Commands:
   wait-stable [--rounds N] [--save FILE] hash a normalized tree signature
   scroll-to <selector args> [--direction up|down|left|right] [--max N]
                                          [--no-hide-ime]
-  text [--into LABEL] [--clear] <value>  type into focus; --into taps first.
+  text [--into LABEL] [--clear] [--no-settle] <value>  type into focus;
+                                         --into taps first and waits briefly
+                                         for the screen to settle (the first
+                                         keystroke can be swallowed during a
+                                         focus change; --no-settle skips it).
                                          %s is the space token; literal %s in
                                          input is typed by segmenting
   clear [--length N]                     clear the focused text field
@@ -60,7 +64,7 @@ import time
 import xml.etree.ElementTree as ET
 from collections import namedtuple
 
-VERSION = "0.2.1"
+VERSION = "0.2.2"
 ADB = os.environ.get("ADB", "adb")
 
 Node = namedtuple(
@@ -517,6 +521,8 @@ def selftest():
         (["wait-stable"], "wait-stable"),
         (["scroll-to", "X"], "scroll-to"),
         (["text", "hello"], "text"),
+        (["text", "x", "--no-settle"], "text"),
+        (["tap", "X", "--expect", "Y", "--expect-regex"], "tap"),
         (["clear"], "clear"),
         (["key", "BACK"], "key"),
         (["swipe", "up"], "swipe"),
@@ -649,6 +655,8 @@ def build_parser():
     tx.add_argument("value", nargs="+")
     tx.add_argument("--into", default=None, metavar="LABEL")
     tx.add_argument("--clear", action="store_true")
+    tx.add_argument("--no-settle", action="store_true",
+                    help="skip the post-tap settle wait with --into")
 
     cl = new_sub("clear", help="clear the focused text field")
     cl.add_argument("--length", type=int, default=TEXT_ESCAPE_LIMIT)
@@ -793,11 +801,12 @@ def cmd_wait(args, serial, log, want_gone=False):
     return 0
 
 
-def cmd_wait_stable(args, serial, log):
-    deadline = time.time() + args.timeout
+def wait_stable(serial, rounds=3, interval=1.0, timeout_s=30, verbose=True):
+    """Return the final tree XML once the normalized signature stops changing."""
+    deadline = time.time() + timeout_s
     last_hash = None
     stable = 0
-    final_xml = ""
+    final_xml = None
     last_reason = ""
     while time.time() < deadline:
         ok, xml, reason = dump(serial)
@@ -805,7 +814,7 @@ def cmd_wait_stable(args, serial, log):
             last_reason = reason
             stable = 0
             last_hash = None
-            time.sleep(args.interval)
+            time.sleep(interval)
             continue
         nodes, _ = parse_tree(xml)
         signature = "\n".join(
@@ -818,20 +827,30 @@ def cmd_wait_stable(args, serial, log):
         else:
             stable = 1
             last_hash = h
-        if stable >= args.rounds:
-            if args.save:
-                with open(args.save, "w", encoding="utf-8") as fh:
-                    fh.write(final_xml)
-                print(f"stable after {stable} identical dumps; tree saved to {args.save}")
-            else:
+        if stable >= rounds:
+            if verbose:
                 print(f"stable after {stable} identical dumps")
-            log.write(f"wait-stable -> ok after {stable} dumps")
-            return 0
-        time.sleep(args.interval)
-    detail = f" (last error while probing: {last_reason})" if last_reason else ""
-    print(f"TIMEOUT: UI never stabilized within {args.timeout}s{detail}", file=sys.stderr)
-    log.write("wait-stable -> timeout")
-    return 1
+            return final_xml
+        time.sleep(interval)
+    if verbose:
+        detail = f" (last error while probing: {last_reason})" if last_reason else ""
+        print(f"TIMEOUT: UI never stabilized within {timeout_s}s{detail}", file=sys.stderr)
+    return None
+
+
+def cmd_wait_stable(args, serial, log):
+    xml = wait_stable(
+        serial, rounds=args.rounds, interval=args.interval, timeout_s=args.timeout,
+    )
+    if xml is None:
+        log.write("wait-stable -> timeout")
+        return 1
+    if args.save:
+        with open(args.save, "w", encoding="utf-8") as fh:
+            fh.write(xml)
+        print(f"tree saved to {args.save}")
+    log.write("wait-stable -> ok")
+    return 0
 
 
 def cmd_scroll_to(args, serial, log):
@@ -911,6 +930,8 @@ def cmd_text(args, serial, log):
             hits[0],
         )
         tap_center(serial, clicked_elem(field[0], parent, field[1]))
+        if not args.no_settle:
+            wait_stable(serial, rounds=2, interval=0.25, timeout_s=3, verbose=False)
     if args.clear:
         do_clear(serial, TEXT_ESCAPE_LIMIT)
     if not send_text(serial, value):
