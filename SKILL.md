@@ -6,7 +6,7 @@ license: MIT
 metadata:
   audience: artifact-authors
   workflow: spec-driven
-  version: 0.2.1
+  version: 0.2.2
   opencode/slash: "true"
 ---
 
@@ -60,7 +60,9 @@ re-verified by download) · human acceptance.
 ## Laws
 
 1. Context Law: swarm for read-mostly analysis; solo for stateful,
-   irreversible work (deploy, release, secrets).
+   irreversible work (deploy, release, secrets). If the harness has no
+   subagents, run the audit and design passes sequentially in one context
+   and say so; the law is about mutex safety, not agent count.
 2. Sequencing Law: correctness → design → deploy → test → fix → re-release.
    Never polish pre-audit code.
 3. Gate Law: auto-accept agent output only when gates are strong. A gate only
@@ -108,6 +110,8 @@ re-verified by download) · human acceptance.
 - Evidence bundle for device runs: numbered screenshots per flow, a test-notes
   table, raw outputs the app produced (e.g. saved files, byte-verified).
 - Distinguish app defects from harness artifacts before fixing anything.
+- CLI projects: no device profile; the evidence bundle is golden files, an
+  exit-code table, and TEST_NOTES.md.
 - Record open loops honestly (what was not tested, not metered, not secured).
 
 ## Device bridge (optional, lean)
