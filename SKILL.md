@@ -149,7 +149,7 @@ accessibility labels (Flutter, Compose, native Views, React Native) and falls
 back to raw-coordinate taps for canvas-only apps. Needs python3 and adb on
 PATH.
 
-Web targets use `scripts/webtap.py` (v0.1.0, bundled since skill v0.3.0),
+Web targets use `scripts/webtap.py` (v0.1.1, bundled since skill v0.3.0),
 the Playwright counterpart with the same contract (single file, argparse,
 exit codes 0/1/2). Verbs mirror uitap.py (dump-labels, find, tap, wait,
 wait-gone, wait-stable, scroll-to, text, clear, key, shot, screen, selftest,

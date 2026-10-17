@@ -87,7 +87,7 @@ import tempfile
 import time
 import urllib.parse
 
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 
 DEFAULT_CONFIG = {
     "base_url": None,
@@ -649,7 +649,7 @@ def dedupe_and_flatten(s, locs, page):
         duplicate = False
         for other in unique:
             try:
-                if page.evaluate("(a, b) => a === b", [handle, other]):
+                if page.evaluate("([a, b]) => a === b", [handle, other]):
                     duplicate = True
                     break
             except Exception:
@@ -667,7 +667,7 @@ def dedupe_and_flatten(s, locs, page):
             if i == j or j in drop or b is None:
                 continue
             try:
-                if page.evaluate("(a, b) => a !== b && a.contains(b)", [a, b]):
+                if page.evaluate("([a, b]) => a !== b && a.contains(b)", [a, b]):
                     drop.add(i)
             except Exception:
                 continue

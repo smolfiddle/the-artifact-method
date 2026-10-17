@@ -1,7 +1,7 @@
 # The Artifact Method
 ## A Working Reference for Spec-Driven, Human-Orchestrated AI Software Development
 
-**Version:** 1.4 | **Date:** 2026-10-17 | **Tooling:** skill 0.3.0 (uitap.py 0.2.3, webtap.py 0.1.0) | **Case study:** MangaCat (github.com/smolfiddle/MangaCat), releases v0.0.1 through v0.0.4
+**Version:** 1.4 | **Date:** 2026-10-17 | **Tooling:** skill 0.3.0 (uitap.py 0.2.3, webtap.py 0.1.1) | **Case study:** MangaCat (github.com/smolfiddle/MangaCat), releases v0.0.1 through v0.0.4
 **Author role:** The practitioner is referred to throughout as the **Artifact Author**.
 
 ---
@@ -314,7 +314,7 @@ framework-agnostic.
 Both paths are harness-equivalent for black-box flows; the MCP path remains to be
 exercised in a future session (§13).
 
-Web targets bind the same stage to `scripts/webtap.py` (v0.1.0, tooling release
+Web targets bind the same stage to `scripts/webtap.py` (v0.1.1, tooling release
 v0.3.0), a Playwright-based driver with the shared contract: one file, argparse
 CLI, exit codes 0/1/2, selftest with no browser needed. Session model: stateless
 per command with a storage-state file (`.webtap/state.json`); DOM commands
@@ -701,7 +701,7 @@ the swarm round (none exists yet, see §13).
   subtraction, not a measurement, and no no-method counterfactual exists.
 - **Platform scope is Android plus Flutter for the case study, plus a web
   driver at smoke level.** `uitap.py` and the case study cover the Android
-  path; `webtap.py` (v0.1.0) extends Stage 7 to web targets but has only been
+  path; `webtap.py` (v0.1.1) extends Stage 7 to web targets but has only been
   exercised against a local static smoke app, never a shipped web product, and
   its stateless model loses in-memory page state between commands (use `flow`
   for form interactions). iOS and other frameworks remain untested and are
@@ -773,6 +773,12 @@ strict multi-match, playwright-missing, bad-CSS, and usage cases; flow
 evidence bundle: `index.json`, `TEST_NOTES.md`, per-step screenshots and JSON
 receipts; console/network JSONL logs with query-string secret redaction
 verified (`token=REDACTED`).
+**Tooling (working tree, unreleased):** `webtap.py` 0.1.1 — fixed
+`dedupe_and_flatten` passing `[a, b]` to two-parameter JS functions
+(Playwright Python does not spread arrays), so container matches never
+collapsed; duplicate/containment checks now use destructuring `([a, b]) =>`.
+96 selftest checks pass; validated by a 147-case exit-code battery on a local
+static app (two identical consecutive runs).
 **MCP verification:** `mobile-mcp` 1.0.11 handshake OK; 33 tools; device
 discovery OK; Node 20.19.4 with non-fatal EBADENGINE warnings.
 **Integrity chain:** arm64 release APK re-downloaded from the published release;
