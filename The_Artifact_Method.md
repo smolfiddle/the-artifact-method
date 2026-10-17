@@ -1,7 +1,7 @@
 # The Artifact Method
 ## A Working Reference for Spec-Driven, Human-Orchestrated AI Software Development
 
-**Version:** 1.3 | **Date:** 2026-10-16 | **Case study:** MangaCat (github.com/smolfiddle/MangaCat), releases v0.0.1 through v0.0.4
+**Version:** 1.4 | **Date:** 2026-10-17 | **Tooling:** skill 0.3.0 (uitap.py 0.2.3, webtap.py 0.1.0) | **Case study:** MangaCat (github.com/smolfiddle/MangaCat), releases v0.0.1 through v0.0.4
 **Author role:** The practitioner is referred to throughout as the **Artifact Author**.
 
 ---
@@ -29,9 +29,10 @@
 > **Limits, honestly:** one case study, a spec-completable domain; no security
 > audit axis yet; auto-accept still a judgment call. See §13.
 >
-> **Scope today:** Android mobile apps built with Flutter, the exercised path.
-> The driver and the method are framework-agnostic by design; other stacks are
-> untested and are the intended expansion.
+> **Scope today:** Android mobile apps built with Flutter, the exercised path,
+> plus web acceptance through the bundled Playwright driver (driver-level smoke
+> run only, see §13). The drivers and the method are framework-agnostic by
+> design; other stacks are untested and are the intended expansion.
 >
 > **Audience:** written for the human Artifact Author. Agents execute from
 > SKILL.md and consult this reference on demand.
@@ -144,8 +145,8 @@ STAGE 3  Hiccup triage   Human uses the app; obvious defects fixed
 STAGE 4  Audit swarm     2 subagents, read-only, correctness axis
 STAGE 5  Design swarm    2 subagents, UI/UX/taste axis
 STAGE 6  Solo ship       Deployment, CI, branding, license, release vX
-STAGE 6b Tooling bind    Device-test harness selected and wired (MCP/adb)
-STAGE 7  Device test     Black-box acceptance on emulator/device; evidence captured
+STAGE 6b Tooling bind    Target-test harness selected and wired (MCP/adb/Playwright)
+STAGE 7  Target test     Black-box acceptance on device or browser; evidence captured
 STAGE 8  Fix loop        Defects → diagnosis → fix → re-verify (back to 7 if needed)
 STAGE 9  Re-release      Version bump, tag, CI artifacts, release notes, evidence bundle
 
@@ -210,8 +211,8 @@ The spec must contain, at minimum:
 
 **Rule:** the spec is frozen before Stage 2. If reality contradicts it during
 the build, the spec is amended deliberately, never silently. Recorded amendment
-in this case: the application package was changed from the draft (`ph.jjjardev.*`
-to `ph.smolfiddle.mangacat`) at the Author's instruction mid-build, and the spec
+in this case: the application package changed from the draft namespace to
+`ph.smolfiddle.mangacat` at the Author's instruction mid-build, and the spec
 file was updated to match in the same commit that scrubbed the old string.
 
 ### Stage 2, One-Shot Build (The Entry Ritual)
@@ -313,7 +314,20 @@ framework-agnostic.
 Both paths are harness-equivalent for black-box flows; the MCP path remains to be
 exercised in a future session (§13).
 
-### Stage 7, Device Test (Black-Box Acceptance), EXECUTED
+Web targets bind the same stage to `scripts/webtap.py` (v0.1.0, tooling release
+v0.3.0), a Playwright-based driver with the shared contract: one file, argparse
+CLI, exit codes 0/1/2, selftest with no browser needed. Session model: stateless
+per command with a storage-state file (`.webtap/state.json`); DOM commands
+reopen the last visited URL; `flow <file.json>` runs a whole acceptance sequence
+in one browser session and writes per-step evidence. Verified at driver level on
+2026-10-17 against a local static smoke app: a 16-step acceptance flow passed
+16/16 (tap with expect, unicode fill, wait and wait-gone, scroll, strict-mode
+multi-match refusal, `--nth` pick), 96 browserless selftest checks passed on
+both a Playwright-enabled venv and stock python3, and the exit-code contract was
+exercised end to end (0/1/2, including playwright-missing and bad-CSS cases).
+Not yet exercised against a production web product; see §13.
+
+### Stage 7, Target Test (Black-Box Acceptance), EXECUTED (Android)
 - Method: debug APK installed on an Android 16 emulator; every acceptance
   criterion walked black-box through system UI, not in-app test hooks.
 - Evidence: **31 numbered screenshots** (`01_launch.png` … `31_bottom_padding.png`),
@@ -535,7 +549,7 @@ You **do** need:
 > "now another round of subagents, review the Design/UI/UX where where it will be
 > better overall"
 
-**Device test:**
+**Target test:**
 > "can you start testing the app?"
 
 **Defect fix (user report → diagnosis → fix):**
@@ -579,6 +593,8 @@ You **do** need:
 - Numbered screenshots for every step, named by flow
 - `TEST_NOTES.md`: flow → result table; explicit note of harness artifacts
 - Raw outputs the app produced during the run (here: the saved CSVs, byte-verified)
+- Web runs (`webtap.py flow`): one directory per flow containing `index.json`,
+  `TEST_NOTES.md`, and `step-NN/` screenshots plus JSON receipts
 - Bundled as a zip and attached to the release
 
 ---
@@ -592,7 +608,7 @@ You **do** need:
 | 3–5 Triage + swarms | included above | included | Cached input dominant (audits are read-mostly) |
 | 6 + gates Ship (v0.0.1) | included above | included | Output-heavy generation |
 | 6b Tooling bind (MCP) | sub-hour | included in Phase 2 total | Assessment (both tools), install, config, verification |
-| 7 Device test | ~54 min capture span | included in Phase 2 total | First screenshot 18:08 → last 19:02 → evidence zip 19:09 (host time) |
+| 7 Target test | ~54 min capture span | included in Phase 2 total | First screenshot 18:08 → last 19:02 → evidence zip 19:09 (host time) |
 | 8 Fix loop | sub-hour | included in Phase 2 total | Diagnosis, fix, re-verify on device |
 | 9 Re-release (v0.0.2) | sub-hour | included in Phase 2 total | Bump, tag, CI, notes, evidence upload, checksum chain |
 | **Phase 2 total (6b–9)** | **≈2 hrs (sum of rows)** | **¥3.72 (~$0.55)** | Aggregate for stages 6b–9; derived from the overall meter minus Phase 1 |
@@ -627,21 +643,22 @@ they exclude human time, hardware, and infrastructure.
 7. **Release workflow** (signed artifacts from secrets with debug fallback,
    idempotent release creation) + **keystore ceremony** (PKCS12, random password,
    gitignore, off-machine backup) + checksum-in-release + download-and-verify
-8. **Device bridge config** (mobile-mcp snippet above; telemetry off; pinned version)
-9. **Device driver script** (adb + uiautomator; fifteen verbs including
-   find/tap selectors by label, --id, --regex, --exact and position order;
-   wait, wait-gone, wait-stable, scroll-to; text --into/--clear; key; swipe;
-   shot; selftest; exit codes 0/1/2. Android-only but framework-agnostic;
-   the Stage 7 fallback that proved sufficient) and the **evidence-bundle
-   shape** (§10)
+8. **Target bridge configuration** (mobile-mcp snippet above; telemetry off; pinned version)
+9. **Target driver scripts** sharing one contract (single file, argparse,
+   exit codes 0/1/2, selftest with no target needed, evidence receipts):
+   Android: `uitap.py` (adb + uiautomator, fifteen verbs, selectors by label,
+   --id, --regex, --exact, position order, --nth); Web: `webtap.py`
+   (Playwright, strict-mode multi-match refusal, accessible-name selectors,
+   --role, --within, storage-state session, flow runner for batched
+   acceptance) and the **evidence-bundle shape** (§10)
 10. This document
 
 **Method v2.0 candidates** (not yet practiced): automated acceptance-runner
-(the `uitap.py` driver is the first prototype; promoting it to a checklist
-executor is the highest-value addition); persistent "model failure ledger" per
-project feeding the audit briefs; spec-diff folding (the v0.0.2 cycle is one
-informal instance, formalize it); a **security axis** in the swarm round
-(none exists yet, see §13).
+(the uitap.py and webtap.py drivers are the first prototypes; promoting either
+to a checklist executor is the highest-value addition); persistent "model
+failure ledger" per project feeding the audit briefs; spec-diff folding (the
+v0.0.2 cycle is one informal instance, formalize it); a **security axis** in
+the swarm round (none exists yet, see §13).
 
 ---
 
@@ -682,9 +699,13 @@ informal instance, formalize it); a **security axis** in the swarm round
 - **Per-stage cost attribution is missing.** The meter is project-level
   (¥7.76, 464 requests, 118,112,557 tokens overall); Phase 2's ¥3.72 is a
   subtraction, not a measurement, and no no-method counterfactual exists.
-- **Platform scope is Android plus Flutter for now.** The device harness and
-  the case study cover that path only. iOS and other frameworks are untested
-  and are where the method is intended to broaden next.
+- **Platform scope is Android plus Flutter for the case study, plus a web
+  driver at smoke level.** `uitap.py` and the case study cover the Android
+  path; `webtap.py` (v0.1.0) extends Stage 7 to web targets but has only been
+  exercised against a local static smoke app, never a shipped web product, and
+  its stateless model loses in-memory page state between commands (use `flow`
+  for form interactions). iOS and other frameworks remain untested and are
+  where the method is intended to broaden next.
 
 ---
 
@@ -742,6 +763,16 @@ CI secrets restore the same key (verified: CI-built APK signer `CN=MangaCat`).
 19:09; attached to v0.0.2 as `mangacat-0.0.2-test-evidence.zip` (3.15 MB).
 **Device under test:** emulator `Medium_Phone_API_36.1`, Android 16 (API 36),
 1080×2400; debug APK versionCode 2 / versionName 0.0.2 verified via aapt2.
+**Tooling (release v0.3.0):** `uitap.py` 0.2.3 — `--nth` was parsed and stored
+since 0.1.0 but never applied; now applied after position ordering (out of
+range is a miss), selftest extended accordingly (49 checks). `webtap.py`
+0.1.0 — new web driver; 96 selftest checks passing both with Playwright
+installed and on stock python3; 16-step acceptance flow passed 16/16 against
+a local static smoke app (2026-10-17); exit codes 0/1/2 exercised including
+strict multi-match, playwright-missing, bad-CSS, and usage cases; flow
+evidence bundle: `index.json`, `TEST_NOTES.md`, per-step screenshots and JSON
+receipts; console/network JSONL logs with query-string secret redaction
+verified (`token=REDACTED`).
 **MCP verification:** `mobile-mcp` 1.0.11 handshake OK; 33 tools; device
 discovery OK; Node 20.19.4 with non-fatal EBADENGINE warnings.
 **Integrity chain:** arm64 release APK re-downloaded from the published release;

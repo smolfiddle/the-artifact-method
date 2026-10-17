@@ -6,7 +6,7 @@ license: MIT
 metadata:
   audience: artifact-authors
   workflow: spec-driven
-  version: 0.2.2
+  version: 0.3.0
   opencode/slash: "true"
 ---
 
@@ -32,10 +32,12 @@ auto-accept decision is contested, when diagnosing a failure class, or when
 the human asks for the full method. Do not load it for routine stage work.
 
 **Scope today:** the exercised path is Android mobile apps built with Flutter.
-The method and the bundled device driver are framework-agnostic by design
-(accessibility-tree driven, with a coordinate fallback), but iOS and other
-stacks have not been tested. The skill is intended to broaden as new case
-studies are run; treat the current tooling as Android plus Flutter.
+Web acceptance is exercised at driver level through the bundled Playwright
+driver (`scripts/webtap.py`), not yet on a shipped web product. The method and
+both drivers are framework-agnostic by design (accessibility-tree driven, with
+a coordinate fallback), but iOS and other stacks have not been tested. The
+skill is intended to broaden as new case studies are run; treat the current
+tooling as Android plus web.
 
 ## Pipeline (one phase per shipped version; the loop is mandatory)
 
@@ -48,8 +50,8 @@ studies are run; treat the current tooling as Android plus Flutter.
 | 4 | Audit swarm | 2 read-only subagents (correctness) | Findings → fix round |
 | 5 | Design swarm | 2 read-only subagents (aesthetics) | Findings → polish round |
 | 6 | Solo ship | Main context | Signed artifacts, CI, README, license, release vN |
-| 6b | Tooling bind | Main context | Device bridge (mobile-mcp) or adb driver |
-| 7 | Device test | Harness + human | Black-box acceptance + evidence bundle |
+| 6b | Tooling bind | Main context | Target bridge: mobile-mcp, adb driver, or Playwright web driver |
+| 7 | Target test | Harness + human | Black-box acceptance + evidence bundle |
 | 8 | Fix loop | Main context | Diagnosed + fixed defects, re-verified |
 | 9 | Re-release | Main context | Version bump, tag, CI release, notes |
 
@@ -85,7 +87,7 @@ re-verified by download) · human acceptance.
   read-only subagents"
 - Design swarm: "review the design/UI/UX for where it can be better overall;
   use subagents"
-- Device test: "start testing the app"
+- Target test: "start testing the app"
 - Fix: "diagnose and fix it" (with the user-observed symptom)
 - Release: "bump to <version>, create a release with description notes, attach
   debug and test evidence too"
@@ -114,10 +116,10 @@ re-verified by download) · human acceptance.
   exit-code table, and TEST_NOTES.md.
 - Record open loops honestly (what was not tested, not metered, not secured).
 
-## Device bridge (optional, lean)
+## Target bridge (optional, lean)
 
-mobile-mcp (Mobile Next) via opencode `mcp` config; pinned version, telemetry
-off, timeout raised for npx cold start:
+For Android, mobile-mcp (Mobile Next) via opencode `mcp` config; pinned
+version, telemetry off, timeout raised for npx cold start:
 
 ```json
 "mcp": {
@@ -146,6 +148,22 @@ Android-only and framework-agnostic: works with any app that exposes
 accessibility labels (Flutter, Compose, native Views, React Native) and falls
 back to raw-coordinate taps for canvas-only apps. Needs python3 and adb on
 PATH.
+
+Web targets use `scripts/webtap.py` (v0.1.0, bundled since skill v0.3.0),
+the Playwright counterpart with the same contract (single file, argparse,
+exit codes 0/1/2). Verbs mirror uitap.py (dump-labels, find, tap, wait,
+wait-gone, wait-stable, scroll-to, text, clear, key, shot, screen, selftest,
+version) and add web-only ones: goto, url, title, console, network, flow.
+Selectors: accessible-name substring, --exact, --regex, --case-sensitive,
+--role, --id (CSS), --within, --nth, position ordering. Strict mode: multiple
+matches are a miss unless --nth or a position flag narrows them. The session
+is stateless per command with a storage-state file (.webtap/state.json); DOM
+commands reopen the last visited URL automatically, and in-memory page state
+(form fields, JS variables) does not survive between commands, so use
+`flow <file.json>` for multi-step acceptance: one browser, per-step evidence
+under .webtap/evidence/, first non-zero step aborts. Needs python3 3.9+ and
+`pip install playwright && playwright install chromium`. `.webtap/` holds
+credential-adjacent state: gitignore it in target projects.
 
 ## What NOT to do
 

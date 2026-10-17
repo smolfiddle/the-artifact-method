@@ -27,10 +27,12 @@ the source those instructions come from.
 ## Scope
 
 Exercised today on Android mobile apps built with Flutter. That is the path
-the case study covers and the one the bundled device driver was proven on.
-The method and the driver are framework-agnostic by design (accessibility
-labels with a coordinate fallback), and the intent is to broaden the skill
-to iOS and other stacks as new case studies are run.
+the case study covers and the one the bundled Android driver was proven on.
+A second bundled driver covers web acceptance with Playwright; it is verified
+at driver level (selftest plus a local smoke run), not yet on a shipped web
+product. The method and both drivers are framework-agnostic by design
+(accessibility labels with a coordinate fallback), and the intent is to
+broaden the skill to iOS and other stacks as new case studies are run.
 
 ## Install
 
@@ -57,6 +59,12 @@ For the device driver (`scripts/uitap.py`, the Android acceptance step):
   pointing at the binary
 - a connected Android device or a running emulator
 
+For the web driver (`scripts/webtap.py`, the web acceptance step):
+
+- python3 3.9 or newer
+- the Playwright Python package: `pip install playwright` and
+  `playwright install chromium` (firefox and webkit are also selectable)
+
 Optional: mobile-mcp wired into the agent for the richer interactive path
 (config snippet in SKILL.md).
 
@@ -67,10 +75,11 @@ GitHub Actions are useful but not required; every other step runs locally.
 
 | Path | Purpose |
 |---|---|
-| `The_Artifact_Method.md` | Full reference (v1.1). Read this first. |
+| `The_Artifact_Method.md` | Full reference (v1.4). Read this first. |
 | `SKILL.md` | The method as an invocable skill: stages, laws, gates, briefs |
 | `assets/AGENTS.template.md` | Project governance template. Copy into each repo as `AGENTS.md` and fill the placeholders. |
 | `scripts/uitap.py` | Android device-test driver (adb plus uiautomator). Details below. |
+| `scripts/webtap.py` | Web acceptance driver (Playwright). Details below. |
 
 ## Using it in a new project
 
@@ -138,6 +147,69 @@ python3 scripts/uitap.py key BACK
 python3 scripts/uitap.py swipe up --distance 900
 python3 scripts/uitap.py shot 07_tracker
 python3 scripts/uitap.py -s emulator-5554 --verbose find "In your list"
+```
+
+## Web driver (`scripts/webtap.py`)
+
+Black-box UI driver for web targets (stage 7). It talks to the browser, not
+to the app: Playwright's accessibility-first locators read roles and
+accessible names, and real input events act on the page. One file, python3
+plus the `playwright` package.
+
+- Framework agnostic: works with any web app that exposes accessible names
+  (text, labels, aria-labels, placeholders). CSS via `--id` and raw
+  coordinate taps are the fallbacks.
+- Selectors: accessible-name substring by default, plus `--exact`, `--regex`,
+  `--case-sensitive`, `--role`, `--id`, `--within`, `--nth`, and position
+  ordering (`--topmost`, `--bottommost`, `--leftmost`, `--rightmost`).
+- Strict mode: multiple matches are a miss, not a guess
+  (`MISS: 2 matches ...; use --nth`), unlike uitap.py which takes the first.
+- Session model: stateless per command with a storage-state file
+  (`.webtap/state.json`) so cookies and localStorage survive between
+  commands. DOM commands reopen the last visited URL automatically; page
+  memory (form fields, JS variables) does not survive between commands. For
+  multi-step runs use `flow <file.json>`: one browser, one sequence, first
+  non-zero step aborts and propagates its exit code.
+- Evidence: state-changing commands write a screenshot and a JSON receipt to
+  `.webtap/evidence/`; flow runs write `index.json`, `TEST_NOTES.md`, and one
+  evidence directory per step. Console and network activity roll into JSONL
+  logs with query-string secrets redacted.
+- Exit codes: 0 success, 1 miss/timeout/expect failure, 2 usage or browser
+  error. Fatal launch errors (browser not installed) fail fast instead of
+  polling.
+- Traps found in smoke testing: `networkidle` never fires on pages with
+  websockets (dev servers), so it is best-effort after the load event; a
+  fresh browser per command means type-then-tap sequences must live in a
+  flow; element screenshots of zero-height elements time out; and
+  `.webtap/state.json` is credential material, so gitignore `.webtap/`.
+
+Usage:
+
+```bash
+python3 scripts/webtap.py goto http://localhost:3000
+python3 scripts/webtap.py find "Sign in" --exact
+python3 scripts/webtap.py tap "Sign in" --expect "Dashboard"
+python3 scripts/webtap.py tap "Sign in" --dry-run
+python3 scripts/webtap.py flow acceptance.json
+python3 scripts/webtap.py --headed --browser firefox goto /
+python3 scripts/webtap.py console --since 30
+python3 scripts/webtap.py network --filter api/
+python3 scripts/webtap.py selftest
+```
+
+Sample flow (`acceptance.json`), the recommended way to run an acceptance
+pass: one browser session, per-step evidence, one verdict.
+
+```json
+[
+  {"cmd": "goto", "url": "http://localhost:3000/"},
+  {"cmd": "wait", "label": "Library"},
+  {"cmd": "shot", "name": "01-library", "full_page": true},
+  {"cmd": "tap", "label": "Add Series"},
+  {"cmd": "text", "into": "Title", "value": "Solo Leveling"},
+  {"cmd": "tap", "label": "Save"},
+  {"cmd": "wait", "label": "Solo Leveling"}
+]
 ```
 
 ## Case study

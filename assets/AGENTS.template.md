@@ -17,7 +17,9 @@ are deliberate and attributed, never silent.
 - **Fix, don't feature-add.** During defect rounds, change only what the defect
   requires. Scope changes go back to the spec and the human.
 - **Claims need receipts.** Every "done" or "fixed" carries evidence: command
-  output, test results, screenshots, checksums.
+  output, test results, screenshots, checksums. A claim about web behavior
+  needs a webtap.py receipt (screenshot plus JSON receipt, or a flow step
+  directory); a claim about Android behavior needs the uitap.py equivalent.
 
 ## Commands
 
@@ -38,11 +40,21 @@ are deliberate and attributed, never silent.
 
 ## Device/UI work (if applicable)
 
-- Prefer black-box verification on an emulator/device when the change is
-  user-visible.
+- Prefer black-box verification on an emulator/device (Android) or in a real
+  browser via `webtap.py flow` (web) when the change is user-visible.
 - Capture evidence: screenshots for each flow, raw outputs the app produced.
 - Distinguish harness artifacts (driver bugs, accessibility quirks) from app
   defects before "fixing" anything.
+
+## Target acceptance tools
+
+- Android: `scripts/uitap.py` (needs python3 and adb)
+- Web: `scripts/webtap.py` (needs `pip install playwright` and
+  `playwright install chromium`)
+- Evidence receipts are release-gating artifacts, not logs. Attach them to
+  releases; do not commit runtime state directories.
+- `.webtap/state.json` holds cookies and localStorage: credential material.
+  Gitignore `.webtap/` in the target project.
 
 ## Permissions (if the harness supports allowlists)
 
