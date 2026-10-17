@@ -64,7 +64,7 @@ import time
 import xml.etree.ElementTree as ET
 from collections import namedtuple
 
-VERSION = "0.2.2"
+VERSION = "0.2.3"
 ADB = os.environ.get("ADB", "adb")
 
 Node = namedtuple(
@@ -234,7 +234,7 @@ class Selector:
         self.regex = getattr(args, "regex", False)
         self.case_sensitive = getattr(args, "case_sensitive", False)
         self.package = getattr(args, "package", None)
-        self.nth = getattr(args, "nth", 0)
+        self.nth = getattr(args, "nth", None)
         self.topmost = getattr(args, "topmost", False)
         self.bottommost = getattr(args, "bottommost", False)
         self.leftmost = getattr(args, "leftmost", False)
@@ -291,11 +291,17 @@ class Selector:
             hits.sort(key=lambda p: (-p[1].bounds[2], p[1].bounds[1]))
         return hits
 
+    def apply(self, hits):
+        hits = self.apply_order(hits)
+        if self.nth is not None:
+            hits = hits[self.nth:self.nth + 1] if 0 <= self.nth < len(hits) else []
+        return hits
+
 
 def selector_namespace(**overrides):
     ns = argparse.Namespace(
         label=None, id=None, exact=False, regex=False, case_sensitive=False,
-        package=None, nth=0, topmost=False, bottommost=False, leftmost=False,
+        package=None, nth=None, topmost=False, bottommost=False, leftmost=False,
         rightmost=False,
     )
     for key, value in overrides.items():
@@ -308,7 +314,7 @@ def selector_env(serial, selector, verbose=False):
     if not ok:
         raise AdbError(reason)
     nodes, parent = parse_tree(xml)
-    hits = selector.apply_order(
+    hits = selector.apply(
         [(e, n) for e, n in nodes if selector.match(n)]
     )
     if verbose and not hits:
@@ -463,7 +469,7 @@ def selftest():
         a = A()
         defaults = dict(
             label=None, id=None, exact=False, regex=False, case_sensitive=False,
-            package=None, nth=0, topmost=False, bottommost=False, leftmost=False,
+            package=None, nth=None, topmost=False, bottommost=False, leftmost=False,
             rightmost=False,
         )
         defaults.update(kw)
@@ -491,8 +497,18 @@ def selftest():
         sel(label="Done", topmost=True).apply_order(both)
     )
     check(ordered[0][1].bounds[1] == 400, "topmost ordering")
+    picked = sel(label="Done", nth=1).apply(both)
+    check(len(picked) == 1 and picked[0][1].bounds[1] == 600, "nth picks the second match")
+    picked = sel(label="Done", nth=0).apply(both)
+    check(len(picked) == 1 and picked[0][1].bounds[1] == 400, "nth picks the first match")
+    picked = sel(label="Done", nth=5).apply(both)
+    check(picked == [], "nth out of range is a miss")
+    picked = sel(label="Done", nth=1).apply_order([])
+    check(picked == [], "ordering empty hit list")
+    picked = sel(label="Done").apply(both)
+    check(len(picked) == 2, "no nth keeps all matches")
     ns = selector_namespace()
-    check(ns.label is None and ns.nth == 0 and ns.exact is False, "selector namespace defaults")
+    check(ns.label is None and ns.nth is None and ns.exact is False, "selector namespace defaults")
     check(selector_namespace(label="x").label == "x", "selector namespace overrides")
 
     up = gesture_points(1080, 2400, "up", 500)
@@ -591,7 +607,7 @@ def build_parser():
         mode.add_argument("--regex", action="store_true")
         sp.add_argument("--case-sensitive", action="store_true")
         sp.add_argument("--package", default=None)
-        sp.add_argument("--nth", type=int, default=0)
+        sp.add_argument("--nth", type=int, default=None)
         sp.add_argument("--topmost", action="store_true")
         sp.add_argument("--bottommost", action="store_true")
         sp.add_argument("--leftmost", action="store_true")
@@ -614,7 +630,7 @@ def build_parser():
     t_mode.add_argument("--regex", action="store_true")
     t.add_argument("--case-sensitive", action="store_true")
     t.add_argument("--package", default=None)
-    t.add_argument("--nth", type=int, default=0)
+    t.add_argument("--nth", type=int, default=None)
     t.add_argument("--topmost", action="store_true")
     t.add_argument("--bottommost", action="store_true")
     t.add_argument("--leftmost", action="store_true")
