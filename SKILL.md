@@ -6,7 +6,7 @@ license: MIT
 metadata:
   audience: artifact-authors
   workflow: spec-driven
-  version: 0.3.0
+  version: 0.3.1
   opencode/slash: "true"
 ---
 

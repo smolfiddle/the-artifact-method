@@ -1,7 +1,7 @@
 # The Artifact Method
 ## A Working Reference for Spec-Driven, Human-Orchestrated AI Software Development
 
-**Version:** 1.4 | **Date:** 2026-10-17 | **Tooling:** skill 0.3.0 (uitap.py 0.2.3, webtap.py 0.1.1) | **Case study:** MangaCat (github.com/smolfiddle/MangaCat), releases v0.0.1 through v0.0.4
+**Version:** 1.4 | **Date:** 2026-10-18 | **Tooling:** skill 0.3.1 (uitap.py 0.2.3, webtap.py 0.1.1) | **Case study:** MangaCat (github.com/smolfiddle/MangaCat), releases v0.0.1 through v0.0.4
 **Author role:** The practitioner is referred to throughout as the **Artifact Author**.
 
 ---
@@ -773,7 +773,7 @@ strict multi-match, playwright-missing, bad-CSS, and usage cases; flow
 evidence bundle: `index.json`, `TEST_NOTES.md`, per-step screenshots and JSON
 receipts; console/network JSONL logs with query-string secret redaction
 verified (`token=REDACTED`).
-**Tooling (working tree, unreleased):** `webtap.py` 0.1.1 — fixed
+**Tooling (release v0.3.1):** `webtap.py` 0.1.1 — fixed
 `dedupe_and_flatten` passing `[a, b]` to two-parameter JS functions
 (Playwright Python does not spread arrays), so container matches never
 collapsed; duplicate/containment checks now use destructuring `([a, b]) =>`.
