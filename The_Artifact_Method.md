@@ -1,7 +1,7 @@
 # The Artifact Method
 ## A Working Reference for Spec-Driven, Human-Orchestrated AI Software Development
 
-**Version:** 1.4 | **Date:** 2026-10-18 | **Tooling:** skill 0.3.1 (uitap.py 0.2.3, webtap.py 0.1.1) | **Case study:** MangaCat (github.com/smolfiddle/MangaCat), releases v0.0.1 through v0.0.4
+**Version:** 1.5 | **Date:** 2026-11-04 | **Tooling:** skill 0.4.0 (uitap.py 0.2.3, webtap.py 0.1.1), TAM Cockpit preview | **Case study:** MangaCat (github.com/smolfiddle/MangaCat), releases v0.0.1 through v0.0.4
 **Author role:** The practitioner is referred to throughout as the **Artifact Author**.
 
 ---
@@ -33,6 +33,9 @@
 > plus web acceptance through the bundled Playwright driver (driver-level smoke
 > run only, see §13). The drivers and the method are framework-agnostic by
 > design; other stacks are untested and are the intended expansion.
+>
+> **Harness:** the method is harness-agnostic. TAM Cockpit is an optional,
+> experimental DeepSeek Harness integration; see `TAM_Cockpit.md`.
 >
 > **Audience:** written for the human Artifact Author. Agents execute from
 > SKILL.md and consult this reference on demand.
@@ -169,6 +172,11 @@ Elicitation runs in a general-purpose **web AI chat**, not in the coding agent.
 The Oracle arrives with an idea, not a document, and leaves with a decision log
 and a drafted specification.
 
+**Optional DSH path.** If you use DeepSeek Harness, the optional TAM Cockpit
+bundle runs the same loop through the `artifact-spec` skill and then enforces
+the contract and build gates. It is an additional harness, not a replacement:
+the web-AI path above remains the reference path. See `TAM_Cockpit.md`.
+
 The loop, as practiced:
 
 1. **Seed.** Describe the idea to the web AI in a few paragraphs: what it is,
@@ -209,11 +217,15 @@ The spec must contain, at minimum:
   exists. This is the contract's enforcement clause and the final gate's script.
 - Performance targets and visual design tokens (hex values, spacing, type scale)
 
-**Rule:** the spec is frozen before Stage 2. If reality contradicts it during
-the build, the spec is amended deliberately, never silently. Recorded amendment
-in this case: the application package changed from the draft namespace to
-`ph.smolfiddle.mangacat` at the Author's instruction mid-build, and the spec
-file was updated to match in the same commit that scrubbed the old string.
+**Rule:** the spec is frozen before release and before the build is accepted.
+The default path freezes before Stage 2. A project MAY use a post-build freeze:
+start the first build from a reviewed draft, let the build surface contract
+changes, record them as decisions, then freeze before build completion. If
+reality contradicts a frozen spec, the spec is amended deliberately, never
+silently. Recorded amendment in this case: the application package changed from
+the draft namespace to `ph.smolfiddle.mangacat` at the Author's instruction
+mid-build, and the spec file was updated to match in the same commit that
+scrubbed the old string.
 
 ### Stage 2, One-Shot Build (The Entry Ritual)
 The ritual is deliberately minimal. Verbatim brief from the case study (one fragment elided for privacy):
@@ -445,11 +457,13 @@ is trivially verifiable on the spot.
 4. **The Artifact Law.** Context lives in files (spec, AGENTS.md, skills), not
    in prompts. A prompt longer than two sentences is a smell: something should
    have been an artifact.
-5. **The Freeze Law.** The spec is frozen before the build; amendments are
-   deliberate, attributed, and re-frozen. Post-build discoveries enter the spec
-   as deltas when the next version is cut. Formalized after v0.0.4: amendment,
-   then spec diff, then a new frozen revision, recorded next to the release it
-   produced.
+5. **The Freeze Law.** The contract is frozen before release and before the
+   build is accepted. Normally it is frozen before the build; a post-build
+   freeze is allowed when the first build is used to discover the contract
+   (TAM Cockpit's default). In either case amendments are deliberate,
+   attributed, and re-frozen; no release ships from an unfrozen contract.
+   Formalized after v0.0.4: amendment, then spec diff, then a new frozen
+   revision, recorded next to the release it produced.
 6. **The Stop Law.** A stage ends when its axis is settled, not when output
    stops. Audit ends when findings dry up; polish ends at "would ship this."
 7. **The Ownership Law.** The human owns every decision without a deterministic
@@ -652,6 +666,9 @@ they exclude human time, hardware, and infrastructure.
    --role, --within, storage-state session, flow runner for batched
    acceptance) and the **evidence-bundle shape** (§10)
 10. This document
+11. **TAM Cockpit (optional).** A DeepSeek Harness bundle that carries the
+    skills, an enforced stage machine, gate receipts, and a cockpit. Preview
+    only; see `TAM_Cockpit.md`.
 
 **Method v2.0 candidates** (not yet practiced): automated acceptance-runner
 (the uitap.py and webtap.py drivers are the first prototypes; promoting either

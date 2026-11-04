@@ -6,9 +6,9 @@ are deliberate and attributed, never silent.
 
 ## Non-negotiables
 
-- **Analyzer loop.** Run `<ANALYZE_CMD>` after every few files. Zero issues
+- **Analyzer loop.** Run the Analyze command below after every few files. Zero issues
   before continuing. Report analyzer output verbatim, never summarized away.
-- **Tests before push.** Run `<TEST_CMD>` fully green before any push. Never
+- **Tests before push.** Run the Test command below fully green before any push. Never
   push a red tree.
 - **Never push without being asked.** Commit locally at stage completion;
   pushing, tagging, and releasing are human gates.
@@ -34,6 +34,12 @@ are deliberate and attributed, never silent.
   deploy before device test, device test before release.
 - Topology: parallel read-only subagents for audits; single context for
   sequential, stateful, or irreversible work (deployments, releases, secrets).
+- Freeze the contract before release and before build acceptance. A post-build
+  freeze is allowed when the first build surfaces contract changes; record each
+  change as a decision.
+- If the harness exposes TAM Cockpit, prefer its gate receipts (`tam_gate`) over
+  ad-hoc "done" claims. The cockpit records evidence; it does not replace this
+  file or the spec.
 - Keep prompts as pointers. Context belongs in files: this spec, this AGENTS.md,
   committed docs, not in chat.
 - Prefer small, honest commits with conventional messages.

@@ -24,6 +24,30 @@ the source those instructions come from.
 - Reusable briefs: short prompts that point at artifacts instead of carrying
   context themselves.
 
+## TAM Cockpit (DSH)
+
+[TAM Cockpit](TAM_Cockpit.md) is an optional, experimental DeepSeek Harness
+integration. It packages the method as a DSH bundle: the TAM and artifact-spec
+skills, an enforced stage machine, gate receipts, agent tools, and a Web
+cockpit.
+
+It is a harness for the method, not a replacement. The web-AI elicitation path
+in this README remains supported and unchanged.
+
+- **Status:** experimental / preview; no shipped case study yet.
+- **v1 scope:** Stages 0–2 (elicitation, contract, build), the local gates, and
+  the cockpit. The v2 device-test layer adds Tooling bind and Target test with
+  the vendored drivers; audit/design swarms may be skipped with a recorded
+  decision.
+- **Source:** separate [TAM Cockpit repository](https://github.com/smolfiddle/TAM_DSH_PLUGIN).
+  This repo documents the integration; it does not host the plugin source.
+- **Install:** install the bundle through DSH's plugin manager from the TAM
+  Cockpit repository. There is no published package yet.
+- **Freeze timing:** the contract may freeze after the first build; build
+  completion and release still require a frozen contract.
+
+Read [TAM_Cockpit.md](TAM_Cockpit.md) for scope, tools, artifacts, and limits.
+
 ## Scope
 
 Exercised today on Android mobile apps built with Flutter. That is the path
@@ -39,6 +63,9 @@ broaden the skill to iOS and other stacks as new case studies are run.
 ```bash
 npx skills add smolfiddle/the-artifact-method
 ```
+
+TAM Cockpit is installed separately through DSH's plugin manager; this repo does
+not host the plugin source. See [TAM_Cockpit.md](TAM_Cockpit.md).
 
 Works with any Agent Skills compatible agent (opencode, Claude Code, Codex,
 Cursor, Gemini CLI, and more). In opencode the skill is also invocable as
@@ -65,6 +92,10 @@ For the web driver (`scripts/webtap.py`, the web acceptance step):
 - the Playwright Python package: `pip install playwright` and
   `playwright install chromium` (firefox and webkit are also selectable)
 
+Optional: DeepSeek Harness (DSH) with the TAM Cockpit bundle for an enforced
+stage machine and cockpit. TAM Cockpit is experimental; see
+[TAM_Cockpit.md](TAM_Cockpit.md).
+
 Optional: mobile-mcp wired into the agent for the richer interactive path
 (config snippet in SKILL.md).
 
@@ -75,8 +106,9 @@ GitHub Actions are useful but not required; every other step runs locally.
 
 | Path | Purpose |
 |---|---|
-| `The_Artifact_Method.md` | Full reference (v1.4). Read this first. |
+| `The_Artifact_Method.md` | Full reference (v1.5). Read this first. |
 | `SKILL.md` | The method as an invocable skill: stages, laws, gates, briefs |
+| `TAM_Cockpit.md` | Optional DeepSeek Harness integration reference (experimental) |
 | `assets/AGENTS.template.md` | Project governance template. Copy into each repo as `AGENTS.md` and fill the placeholders. |
 | `scripts/uitap.py` | Android device-test driver (adb plus uiautomator). Details below. |
 | `scripts/webtap.py` | Web acceptance driver (Playwright). Details below. |
@@ -88,7 +120,11 @@ GitHub Actions are useful but not required; every other step runs locally.
    forced-choice questions until new questions stop (the case study used 75
    across four rounds); then ask the AI to draft the spec against the Stage 1
    structure.
-2. Put the specification file in the repo root. The spec is the asset.
+   If you use DeepSeek Harness, the optional TAM Cockpit bundle can run this
+   same loop through the artifact-spec skill and then enforce the contract and
+   build gates; see [TAM_Cockpit.md](TAM_Cockpit.md).
+2. Put the specification file in the repo root (or at `spec/spec.md` when using
+   artifact-spec/TAM Cockpit). The spec is the asset.
 3. Copy `assets/AGENTS.template.md` to the repo root as `AGENTS.md` and fill
    the placeholders: spec path, analyze command, test command, build command.
 4. Load the skill and give the one-line brief: *"create this application from
@@ -224,7 +260,7 @@ where the method is proven and where it is not.
 
 ## Support
 
-Maintained by one author, in the open. Issues, reviews, and pull requests
+Maintained by smolfiddle, in the open. Issues, reviews, and pull requests
 are welcome; response times are best-effort. The reference document states
 plainly where the method is proven and where it is not, so treat its open
 loops as the current boundary.

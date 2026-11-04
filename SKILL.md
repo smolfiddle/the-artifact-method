@@ -6,7 +6,8 @@ license: MIT
 metadata:
   audience: artifact-authors
   workflow: spec-driven
-  version: 0.3.1
+  version: 0.4.0
+  author: smolfiddle
   opencode/slash: "true"
 ---
 
@@ -43,7 +44,7 @@ tooling as Android plus web.
 
 | Stage | Name | Actor | Output |
 |---|---|---|---|
-| 0 | Elicitation | Human + web AI interview | Decision log, then a drafted spec |
+| 0 | Elicitation | Human + web AI interview or DSH cockpit | Decision log, then a drafted spec |
 | 1 | Contract | AI drafts, human freezes | Normative spec + acceptance criteria |
 | 2 | One-shot build | Builder (main context) | Working app, committed locally, never pushed yet |
 | 3 | Hiccup triage | Human uses the app | Obvious defects fixed, no scope growth |
@@ -71,7 +72,9 @@ re-verified by download) · human acceptance.
    covers the failure classes it was built for; check coverage first.
 4. Artifact Law: context lives in files (spec, AGENTS.md, skills). A prompt
    longer than two sentences is a smell.
-5. Freeze Law: spec frozen before build; amendments deliberate and attributed.
+5. Freeze Law: contract frozen before release and before build acceptance; a
+   post-build freeze is allowed when the first build surfaces contract changes.
+   Amendments are deliberate and attributed.
 6. Stop Law: a stage ends when its axis is settled, not when output stops.
 7. Ownership Law: the human owns product decisions: brand, license, scope,
    acceptance.
@@ -98,11 +101,24 @@ re-verified by download) · human acceptance.
    The_Artifact_Method.md, into a web AI chat; answer rounds of about 30
    forced-choice questions until new questions stop; then have the AI draft
    the spec against the Stage 1 structure.
-2. Put the spec file in the repo root (and keep it there, it is the asset).
+2. Put the spec file in the repo root (or at `spec/spec.md` when using
+   artifact-spec/TAM Cockpit) and keep it there; it is the asset.
 3. Copy `assets/AGENTS.template.md` from this skill folder to the repo root as
    `AGENTS.md`; fill the placeholders (spec path, analyze/test/build commands).
-4. Load this skill; issue the one-shot brief.
+4. Load this skill; issue the one-shot brief. Freeze the contract before the
+   build, or after the first build when using post-build freeze; never release
+   without a frozen contract.
 5. Never ship the first artifact. Never push until the pre-push sweep passes.
+
+## Optional TAM Cockpit (DSH)
+
+If the harness has the TAM Cockpit bundle, it owns stage state and gate
+receipts. Use `tam_status`, `tam_start`, `tam_stage`, `tam_gate`,
+`tam_decision`, `tam_evidence`, `tam_repair`, and `tam_driver`; human commands are `/tam`,
+`/tam start`, `/tam next`, `/tam gate`, and `/tam repair`; `/tam driver` and
+`/tam skip` are also available in v2. This skill remains
+the method contract. If the tools are absent, follow the plain-file workflow
+above. The cockpit is experimental/preview; see `TAM_Cockpit.md`.
 
 ## Gates & evidence rules
 
@@ -115,6 +131,8 @@ re-verified by download) · human acceptance.
 - CLI projects: no device profile; the evidence bundle is golden files, an
   exit-code table, and TEST_NOTES.md.
 - Record open loops honestly (what was not tested, not metered, not secured).
+- In TAM Cockpit, `tam_gate` writes the receipt; a claim without a receipt still
+  fails.
 
 ## Target bridge (optional, lean)
 
