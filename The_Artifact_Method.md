@@ -35,8 +35,8 @@
 > design; other stacks are untested and are the intended expansion.
 >
 > **Stage 0/1 engine:** the method is harness-agnostic. The `artifact-spec`
-> skill (github.com/jjjardev/artifact-spec) runs the interview and freezes the
-> contract; its three files are the input to Stage 2. The web-chat loop below
+> skill runs the interview and freezes the contract; its three files are the
+> input to Stage 2. The web-chat loop below
 > is the manual fallback and the path the case study used.
 >
 > **Audience:** written for the human Artifact Author. Agents execute from

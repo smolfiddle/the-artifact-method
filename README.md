@@ -23,8 +23,8 @@ the source those instructions come from.
   sweep, CI, device run), not per-finding review.
 - Reusable briefs: short prompts that point at artifacts instead of carrying
   context themselves.
-- A Stage 0/1 engine: the [artifact-spec](https://github.com/jjjardev/artifact-spec)
-  skill runs the interview and writes the frozen contract as `spec/spec.md`,
+- A Stage 0/1 engine: the `artifact-spec` skill runs the interview and writes
+  the frozen contract as `spec/spec.md`,
   `spec/decisions.md`, and `spec/open-questions.md`.
 
 ## Scope
@@ -43,8 +43,8 @@ broaden the skill to iOS and other stacks as new case studies are run.
 npx skills add smolfiddle/the-artifact-method
 ```
 
-Stage 0/1 uses the separate [artifact-spec](https://github.com/jjjardev/artifact-spec)
-skill; install it alongside this one to run the interview loop.
+Stage 0/1 uses the separate `artifact-spec` skill; install it alongside this
+one to run the interview loop.
 
 Works with any Agent Skills compatible agent (opencode, Claude Code, Codex,
 Cursor, Gemini CLI, and more). In opencode the skill is also invocable as
@@ -72,8 +72,7 @@ For the web driver (`scripts/webtap.py`, the web acceptance step):
   `playwright install chromium` (firefox and webkit are also selectable)
 
 Optional: the artifact-spec skill for Stage 0/1 (interview, decision log,
-frozen contract). Manual install: copy `skills/artifact-spec/` from
-github.com/jjjardev/artifact-spec into your agent's skills directory.
+frozen contract). Install it alongside this skill to run the interview loop.
 
 Optional: mobile-mcp wired into the agent for the richer interactive path
 (config snippet in SKILL.md).

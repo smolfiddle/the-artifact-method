@@ -33,7 +33,7 @@ auto-accept decision is contested, when diagnosing a failure class, or when
 the human asks for the full method. Do not load it for routine stage work.
 
 **Stage 0/1 skill:** the interview and contract are produced by the
-`artifact-spec` skill (github.com/jjjardev/artifact-spec). It writes
+`artifact-spec` skill. It writes
 `spec/spec.md`, `spec/decisions.md`, and `spec/open-questions.md`, and freezes
 the contract before this skill's Stage 2. The web-chat loop in the reference is
 the manual fallback; it produces the same contract shape.
