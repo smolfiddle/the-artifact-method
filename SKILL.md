@@ -6,7 +6,7 @@ license: MIT
 metadata:
   audience: artifact-authors
   workflow: spec-driven
-  version: 0.4.0
+  version: 0.4.1
   author: smolfiddle
   opencode/slash: "true"
 ---
@@ -32,6 +32,12 @@ reference on demand: when planning a project's pipeline, when a gate or
 auto-accept decision is contested, when diagnosing a failure class, or when
 the human asks for the full method. Do not load it for routine stage work.
 
+**Stage 0/1 skill:** the interview and contract are produced by the
+`artifact-spec` skill (github.com/jjjardev/artifact-spec). It writes
+`spec/spec.md`, `spec/decisions.md`, and `spec/open-questions.md`, and freezes
+the contract before this skill's Stage 2. The web-chat loop in the reference is
+the manual fallback; it produces the same contract shape.
+
 **Scope today:** the exercised path is Android mobile apps built with Flutter.
 Web acceptance is exercised at driver level through the bundled Playwright
 driver (`scripts/webtap.py`), not yet on a shipped web product. The method and
@@ -44,7 +50,7 @@ tooling as Android plus web.
 
 | Stage | Name | Actor | Output |
 |---|---|---|---|
-| 0 | Elicitation | Human + web AI interview or DSH cockpit | Decision log, then a drafted spec |
+| 0 | Elicitation | Human + artifact-spec interview | Decision log, then a drafted spec |
 | 1 | Contract | AI drafts, human freezes | Normative spec + acceptance criteria |
 | 2 | One-shot build | Builder (main context) | Working app, committed locally, never pushed yet |
 | 3 | Hiccup triage | Human uses the app | Obvious defects fixed, no scope growth |
@@ -72,19 +78,17 @@ re-verified by download) · human acceptance.
    covers the failure classes it was built for; check coverage first.
 4. Artifact Law: context lives in files (spec, AGENTS.md, skills). A prompt
    longer than two sentences is a smell.
-5. Freeze Law: contract frozen before release and before build acceptance; a
-   post-build freeze is allowed when the first build surfaces contract changes.
-   Amendments are deliberate and attributed.
+5. Freeze Law: the contract is frozen before Stage 2 and before release.
+   Amendments are deliberate and attributed; a build never starts from a draft.
 6. Stop Law: a stage ends when its axis is settled, not when output stops.
 7. Ownership Law: the human owns product decisions: brand, license, scope,
    acceptance.
 
 ## Briefs (reuse verbatim shape; keep them short)
 
-- Elicitation (web AI chat): "Here is my idea: <idea>. Ask me about 30
-  forced-choice questions, each with an expert-default option. Keep asking
-  new rounds until you run out." Then: "Using The_Artifact_Method.md as the
-  template, draft the specification."
+- Elicitation (artifact-spec skill): "interview me for a spec: <idea>". Answer
+  the forced-choice rounds, clear `NOTE:` annotations, and freeze. The Scribe
+  writes `spec/spec.md`, `spec/decisions.md`, `spec/open-questions.md`.
 - One-shot: "create this application from <SPEC>; do not push it yet"
 - Audit swarm: "scan the codebase for anomalies/bugs/needed adjustments; use 2
   read-only subagents"
@@ -97,28 +101,18 @@ re-verified by download) · human acceptance.
 
 ## Starting a new TAM project
 
-1. Create the spec with the Stage 0 loop: seed the idea, and this repo's
-   The_Artifact_Method.md, into a web AI chat; answer rounds of about 30
-   forced-choice questions until new questions stop; then have the AI draft
-   the spec against the Stage 1 structure.
-2. Put the spec file in the repo root (or at `spec/spec.md` when using
-   artifact-spec/TAM Cockpit) and keep it there; it is the asset.
+1. Run Stage 0/1 with the `artifact-spec` skill: seed the idea, answer the
+   forced-choice rounds until fixpoint, review the draft with `NOTE:` lines,
+   and freeze. It writes `spec/spec.md`, `spec/decisions.md`, and
+   `spec/open-questions.md`. Without the skill, run the manual web-chat loop in
+   `The_Artifact_Method.md` §5 and draft against the Stage 1 structure.
+2. Keep the spec at `spec/spec.md` (or in the repo root for the manual path);
+   it is the asset and every later stage points at it.
 3. Copy `assets/AGENTS.template.md` from this skill folder to the repo root as
    `AGENTS.md`; fill the placeholders (spec path, analyze/test/build commands).
-4. Load this skill; issue the one-shot brief. Freeze the contract before the
-   build, or after the first build when using post-build freeze; never release
-   without a frozen contract.
+4. Load this skill; issue the one-shot brief. The contract MUST be FROZEN with
+   no open questions (or with recorded waivers) before Stage 2 begins.
 5. Never ship the first artifact. Never push until the pre-push sweep passes.
-
-## Optional TAM Cockpit (DSH)
-
-If the harness has the TAM Cockpit bundle, it owns stage state and gate
-receipts. Use `tam_status`, `tam_start`, `tam_stage`, `tam_gate`,
-`tam_decision`, `tam_evidence`, `tam_repair`, and `tam_driver`; human commands are `/tam`,
-`/tam start`, `/tam next`, `/tam gate`, and `/tam repair`; `/tam driver` and
-`/tam skip` are also available in v2. This skill remains
-the method contract. If the tools are absent, follow the plain-file workflow
-above. The cockpit is experimental/preview; see `TAM_Cockpit.md`.
 
 ## Gates & evidence rules
 
@@ -131,8 +125,8 @@ above. The cockpit is experimental/preview; see `TAM_Cockpit.md`.
 - CLI projects: no device profile; the evidence bundle is golden files, an
   exit-code table, and TEST_NOTES.md.
 - Record open loops honestly (what was not tested, not metered, not secured).
-- In TAM Cockpit, `tam_gate` writes the receipt; a claim without a receipt still
-  fails.
+- A frozen contract and empty (or waived) open questions are the precondition
+  for Stage 2; re-check them at the pre-push sweep.
 
 ## Target bridge (optional, lean)
 
@@ -191,3 +185,4 @@ credential-adjacent state: gitignore it in target projects.
 - Do not release without the signing-identity ceremony (keystore backup,
   secrets, checksum verification).
 - Do not expand scope inside fix rounds.
+- Do not start Stage 2 from a DRAFT spec or with OPEN questions outstanding.

@@ -23,30 +23,9 @@ the source those instructions come from.
   sweep, CI, device run), not per-finding review.
 - Reusable briefs: short prompts that point at artifacts instead of carrying
   context themselves.
-
-## TAM Cockpit (DSH)
-
-[TAM Cockpit](TAM_Cockpit.md) is an optional, experimental DeepSeek Harness
-integration. It packages the method as a DSH bundle: the TAM and artifact-spec
-skills, an enforced stage machine, gate receipts, agent tools, and a Web
-cockpit.
-
-It is a harness for the method, not a replacement. The web-AI elicitation path
-in this README remains supported and unchanged.
-
-- **Status:** experimental / preview; no shipped case study yet.
-- **v1 scope:** Stages 0–2 (elicitation, contract, build), the local gates, and
-  the cockpit. The v2 device-test layer adds Tooling bind and Target test with
-  the vendored drivers; audit/design swarms may be skipped with a recorded
-  decision.
-- **Source:** separate [TAM Cockpit repository](https://github.com/smolfiddle/TAM_DSH_PLUGIN).
-  This repo documents the integration; it does not host the plugin source.
-- **Install:** install the bundle through DSH's plugin manager from the TAM
-  Cockpit repository. There is no published package yet.
-- **Freeze timing:** the contract may freeze after the first build; build
-  completion and release still require a frozen contract.
-
-Read [TAM_Cockpit.md](TAM_Cockpit.md) for scope, tools, artifacts, and limits.
+- A Stage 0/1 engine: the [artifact-spec](https://github.com/jjjardev/artifact-spec)
+  skill runs the interview and writes the frozen contract as `spec/spec.md`,
+  `spec/decisions.md`, and `spec/open-questions.md`.
 
 ## Scope
 
@@ -64,8 +43,8 @@ broaden the skill to iOS and other stacks as new case studies are run.
 npx skills add smolfiddle/the-artifact-method
 ```
 
-TAM Cockpit is installed separately through DSH's plugin manager; this repo does
-not host the plugin source. See [TAM_Cockpit.md](TAM_Cockpit.md).
+Stage 0/1 uses the separate [artifact-spec](https://github.com/jjjardev/artifact-spec)
+skill; install it alongside this one to run the interview loop.
 
 Works with any Agent Skills compatible agent (opencode, Claude Code, Codex,
 Cursor, Gemini CLI, and more). In opencode the skill is also invocable as
@@ -92,9 +71,9 @@ For the web driver (`scripts/webtap.py`, the web acceptance step):
 - the Playwright Python package: `pip install playwright` and
   `playwright install chromium` (firefox and webkit are also selectable)
 
-Optional: DeepSeek Harness (DSH) with the TAM Cockpit bundle for an enforced
-stage machine and cockpit. TAM Cockpit is experimental; see
-[TAM_Cockpit.md](TAM_Cockpit.md).
+Optional: the artifact-spec skill for Stage 0/1 (interview, decision log,
+frozen contract). Manual install: copy `skills/artifact-spec/` from
+github.com/jjjardev/artifact-spec into your agent's skills directory.
 
 Optional: mobile-mcp wired into the agent for the richer interactive path
 (config snippet in SKILL.md).
@@ -106,25 +85,22 @@ GitHub Actions are useful but not required; every other step runs locally.
 
 | Path | Purpose |
 |---|---|
-| `The_Artifact_Method.md` | Full reference (v1.5). Read this first. |
+| `The_Artifact_Method.md` | Full reference (v1.5.1). Read this first. |
 | `SKILL.md` | The method as an invocable skill: stages, laws, gates, briefs |
-| `TAM_Cockpit.md` | Optional DeepSeek Harness integration reference (experimental) |
 | `assets/AGENTS.template.md` | Project governance template. Copy into each repo as `AGENTS.md` and fill the placeholders. |
 | `scripts/uitap.py` | Android device-test driver (adb plus uiautomator). Details below. |
 | `scripts/webtap.py` | Web acceptance driver (Playwright). Details below. |
 
 ## Using it in a new project
 
-1. Create the spec with the Stage 0 loop: put your idea, and this repo's
-   `The_Artifact_Method.md`, into a web AI chat; answer rounds of about 30
-   forced-choice questions until new questions stop (the case study used 75
-   across four rounds); then ask the AI to draft the spec against the Stage 1
-   structure.
-   If you use DeepSeek Harness, the optional TAM Cockpit bundle can run this
-   same loop through the artifact-spec skill and then enforce the contract and
-   build gates; see [TAM_Cockpit.md](TAM_Cockpit.md).
-2. Put the specification file in the repo root (or at `spec/spec.md` when using
-   artifact-spec/TAM Cockpit). The spec is the asset.
+1. Run Stage 0/1 with the `artifact-spec` skill: seed the idea, answer the
+   forced-choice rounds until fixpoint, clear the `NOTE:` annotations, and
+   freeze. It writes `spec/spec.md`, `spec/decisions.md`, and
+   `spec/open-questions.md`. Without the skill, run the manual web-chat loop in
+   `The_Artifact_Method.md` §5 (the case study used 75 questions across four
+   rounds) and draft against the Stage 1 structure.
+2. Keep the spec at `spec/spec.md` (or in the repo root for the manual path).
+   The spec is the asset.
 3. Copy `assets/AGENTS.template.md` to the repo root as `AGENTS.md` and fill
    the placeholders: spec path, analyze command, test command, build command.
 4. Load the skill and give the one-line brief: *"create this application from
@@ -252,11 +228,11 @@ pass: one browser session, per-step evidence, one verdict.
 
 The reference is built from one complete build:
 [MangaCat](https://github.com/smolfiddle/MangaCat), a signed, CI backed, tested
-Android app shipped across three released versions, the first two feature
+Android app shipped across four released versions, the first two feature
 cycles metered at ¥7.76 (~$1.15) in API cost and roughly five human hours,
-including device acceptance with a screenshot evidence bundle. The third
-release was a documentation pass. The document states plainly
-where the method is proven and where it is not.
+including device acceptance with a screenshot evidence bundle. The later
+releases were a documentation pass and a UX fix with a field-defect regression
+test. The document states plainly where the method is proven and where it is not.
 
 ## Support
 

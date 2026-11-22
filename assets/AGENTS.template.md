@@ -34,12 +34,12 @@ are deliberate and attributed, never silent.
   deploy before device test, device test before release.
 - Topology: parallel read-only subagents for audits; single context for
   sequential, stateful, or irreversible work (deployments, releases, secrets).
-- Freeze the contract before release and before build acceptance. A post-build
-  freeze is allowed when the first build surfaces contract changes; record each
-  change as a decision.
-- If the harness exposes TAM Cockpit, prefer its gate receipts (`tam_gate`) over
-  ad-hoc "done" claims. The cockpit records evidence; it does not replace this
-  file or the spec.
+- Freeze the contract before Stage 2 and before release. Never build from a
+  DRAFT spec or with OPEN questions outstanding unless the Oracle has recorded
+  an explicit waiver. If reality contradicts a frozen spec, record a deliberate
+  amendment decision; never change it silently.
+- Stage 0/1 artifacts live at `spec/spec.md`, `spec/decisions.md`, and
+  `spec/open-questions.md`. The decision log is append-only; never rewrite it.
 - Keep prompts as pointers. Context belongs in files: this spec, this AGENTS.md,
   committed docs, not in chat.
 - Prefer small, honest commits with conventional messages.

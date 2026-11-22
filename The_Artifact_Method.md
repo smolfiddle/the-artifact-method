@@ -1,7 +1,7 @@
 # The Artifact Method
 ## A Working Reference for Spec-Driven, Human-Orchestrated AI Software Development
 
-**Version:** 1.5 | **Date:** 2026-11-04 | **Tooling:** skill 0.4.0 (uitap.py 0.2.3, webtap.py 0.1.1), TAM Cockpit preview | **Case study:** MangaCat (github.com/smolfiddle/MangaCat), releases v0.0.1 through v0.0.4
+**Version:** 1.5.1 | **Date:** 2026-11-22 | **Tooling:** skill 0.4.1 (uitap.py 0.2.3, webtap.py 0.1.1), artifact-spec 0.1.3 | **Case study:** MangaCat (github.com/smolfiddle/MangaCat), releases v0.0.1 through v0.0.4
 **Author role:** The practitioner is referred to throughout as the **Artifact Author**.
 
 ---
@@ -34,8 +34,10 @@
 > run only, see §13). The drivers and the method are framework-agnostic by
 > design; other stacks are untested and are the intended expansion.
 >
-> **Harness:** the method is harness-agnostic. TAM Cockpit is an optional,
-> experimental DeepSeek Harness integration; see `TAM_Cockpit.md`.
+> **Stage 0/1 engine:** the method is harness-agnostic. The `artifact-spec`
+> skill (github.com/jjjardev/artifact-spec) runs the interview and freezes the
+> contract; its three files are the input to Stage 2. The web-chat loop below
+> is the manual fallback and the path the case study used.
 >
 > **Audience:** written for the human Artifact Author. Agents execute from
 > SKILL.md and consult this reference on demand.
@@ -168,22 +170,28 @@ Stages 4, 5, and 7 are **swarm/harness rounds**; stages 6, 6b, 8, and 9 are
 ## 5. Stage Specifications
 
 ### Stage 0, Elicitation
-Elicitation runs in a general-purpose **web AI chat**, not in the coding agent.
-The Oracle arrives with an idea, not a document, and leaves with a decision log
-and a drafted specification.
+Stage 0 runs with the **`artifact-spec` skill** where available, or manually in
+a general-purpose **web AI chat**. The Oracle arrives with an idea, not a
+document, and leaves with a decision log and a drafted specification.
 
-**Optional DSH path.** If you use DeepSeek Harness, the optional TAM Cockpit
-bundle runs the same loop through the `artifact-spec` skill and then enforces
-the contract and build gates. It is an additional harness, not a replacement:
-the web-AI path above remains the reference path. See `TAM_Cockpit.md`.
+The `artifact-spec` skill encodes the loop below as a protocol: forced-choice
+rounds of 15–30 questions with exactly one expert default each, a weighted
+"context completeness" meter recomputed every round, halt-and-resolve on
+contradictions, and hard caps of 6 rounds / 90 questions. It writes three
+files — `spec/spec.md`, `spec/decisions.md`, `spec/open-questions.md` — and
+freezes only when no OPEN items remain or each has a recorded waiver. The
+manual web-chat loop is the fallback and is what the case study used.
 
 The loop, as practiced:
 
 1. **Seed.** Describe the idea to the web AI in a few paragraphs: what it is,
    who it is for, the rough shape.
 2. **Request questions.** Ask for roughly 30 forced-choice questions (choices
-   with an expert default, not open essays), grouped by concern: usage, data
-   model, file behavior, UI, platform, privacy, future-proofing.
+   with an expert default, not open essays), grouped by concern: data model,
+   privacy, security, error and failure behavior, usage, platform, file
+   behavior, UI, performance and observability, distribution/licensing and
+   future-proofing — the ten weighted groups in artifact-spec's question
+   taxonomy.
 3. **Answer and delegate.** Answer with preferences where taste matters;
    answer "whatever is best" where it does not. This separates *preference*
    from *expertise* and merges them into one decision log.
@@ -201,8 +209,10 @@ The interviewer's job is to surface contradictions in the Oracle's answers
 (e.g., "keep it simple" vs. "series tracker with all the shebang", resolved
 via a simple/advanced mode toggle).
 
-**Output:** a numbered decision log plus a drafted normative specification.
-Every later stage traces authority to them; Stage 1 is the review and freeze.
+**Output:** `spec/decisions.md` (numbered, append-only), `spec/spec.md` (the
+drafted normative specification), and `spec/open-questions.md` (unresolved
+items). Every later stage traces authority to them; Stage 1 is the review and
+freeze.
 
 ### Stage 1, The Contract (Normative Specification)
 The spec must contain, at minimum:
@@ -217,13 +227,13 @@ The spec must contain, at minimum:
   exists. This is the contract's enforcement clause and the final gate's script.
 - Performance targets and visual design tokens (hex values, spacing, type scale)
 
-**Rule:** the spec is frozen before release and before the build is accepted.
-The default path freezes before Stage 2. A project MAY use a post-build freeze:
-start the first build from a reviewed draft, let the build surface contract
-changes, record them as decisions, then freeze before build completion. If
-reality contradicts a frozen spec, the spec is amended deliberately, never
-silently. Recorded amendment in this case: the application package changed from
-the draft namespace to `ph.smolfiddle.mangacat` at the Author's instruction
+**Rule:** the spec is frozen before Stage 2 and before release; a build never
+starts from a draft. artifact-spec's Freeze Gate produces this state: open
+questions empty or each explicitly waived in a recorded decision. If reality
+contradicts a frozen spec, the spec is amended deliberately, never silently,
+and the amendment is recorded as a new decision. Recorded amendment in this
+case: the application package changed from the draft namespace to
+`ph.smolfiddle.mangacat` at the Author's instruction
 mid-build, and the spec file was updated to match in the same commit that
 scrubbed the old string.
 
@@ -457,12 +467,11 @@ is trivially verifiable on the spot.
 4. **The Artifact Law.** Context lives in files (spec, AGENTS.md, skills), not
    in prompts. A prompt longer than two sentences is a smell: something should
    have been an artifact.
-5. **The Freeze Law.** The contract is frozen before release and before the
-   build is accepted. Normally it is frozen before the build; a post-build
-   freeze is allowed when the first build is used to discover the contract
-   (TAM Cockpit's default). In either case amendments are deliberate,
-   attributed, and re-frozen; no release ships from an unfrozen contract.
-   Formalized after v0.0.4: amendment, then spec diff, then a new frozen
+5. **The Freeze Law.** The contract is frozen before Stage 2 and before
+   release; a build never starts from a DRAFT spec or with OPEN questions
+   outstanding. artifact-spec's Freeze Gate is the mechanism. Amendments are
+   deliberate, attributed, and re-frozen; no release ships from an unfrozen
+   contract. Formalized after v0.0.4: amendment, then spec diff, then a new frozen
    revision, recorded next to the release it produced.
 6. **The Stop Law.** A stage ends when its axis is settled, not when output
    stops. Audit ends when findings dry up; polish ends at "would ship this."
@@ -666,9 +675,9 @@ they exclude human time, hardware, and infrastructure.
    --role, --within, storage-state session, flow runner for batched
    acceptance) and the **evidence-bundle shape** (§10)
 10. This document
-11. **TAM Cockpit (optional).** A DeepSeek Harness bundle that carries the
-    skills, an enforced stage machine, gate receipts, and a cockpit. Preview
-    only; see `TAM_Cockpit.md`.
+11. **Stage 0/1 skill.** Install `artifact-spec` alongside this skill. It runs
+    the interview and produces `spec/spec.md`, `spec/decisions.md`, and
+    `spec/open-questions.md` in the frozen state Stage 2 expects.
 
 **Method v2.0 candidates** (not yet practiced): automated acceptance-runner
 (the uitap.py and webtap.py drivers are the first prototypes; promoting either
